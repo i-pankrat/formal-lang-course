@@ -72,8 +72,5 @@ def test_labeled_two_cycles_graph_to_dot():
 
     assert len(pydot_graph) == 1
     read_cfpq_graph = nx.nx_pydot.from_pydot(pydot_graph[0])
-    # For some reason after reading from saved file we have extra node='\\n'
-    nodes_to_remove = [node for node in read_cfpq_graph if node == "\\n"]
-    read_cfpq_graph.remove_nodes_from(nodes_to_remove)
     assert cfpq_graph.number_of_edges() == read_cfpq_graph.number_of_edges()
     assert cfpq_graph.number_of_nodes() == read_cfpq_graph.number_of_nodes()

@@ -54,5 +54,6 @@ def labeled_two_cycles_graph_to_dot(
         first_cycle_len, second_cycle_len, labels=labels
     )
     pydot_graph = nx.nx_pydot.to_pydot(graph)
-    pydot_graph.write_dot(file_name + ".dot")
+    with open(file_name + ".dot", "w") as file:
+        file.write(pydot_graph.to_string().replace("\n", ""))
     return

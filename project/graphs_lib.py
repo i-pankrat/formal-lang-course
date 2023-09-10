@@ -24,12 +24,12 @@ def get_graph_info(graph_name: str) -> Tuple[int, int, set]:
     p = cfpq_data.download(graph_name)
     g = cfpq_data.graph_from_csv(p)
 
-    labels_set = set()
     # It is assumed that in the whole course the information on the edges is called "label"
-    for _, _, _, label in g.edges(data=LABEL, keys=True):
-        labels_set.add(label)
-
-    return g.number_of_nodes(), g.number_of_edges(), labels_set
+    return (
+        g.number_of_nodes(),
+        g.number_of_edges(),
+        set([label for _, _, _, label in g.edges(data=LABEL, keys=True)]),
+    )
 
 
 def labeled_two_cycles_graph_to_dot(

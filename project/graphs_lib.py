@@ -53,7 +53,19 @@ def labeled_two_cycles_graph_to_dot(
     graph = cfpq_data.labeled_two_cycles_graph(
         first_cycle_len, second_cycle_len, labels=labels
     )
-    pydot_graph = nx.nx_pydot.to_pydot(graph)
-    with open(file_name + ".dot", "w") as file:
-        file.write(pydot_graph.to_string().replace("\n", ""))
+    write_to_dot(graph, file_name)
     return
+
+
+def write_to_dot(graph: any, path: str):
+    """Write graph to .dot file.
+
+    Parameters
+    ----------
+    graph : any
+        The graph from a NetworkX that will be written to the file
+    path: str
+        The name to the file where the graph will be written.
+    """
+    with open(path + ".dot", "w") as file:
+        file.write(nx.nx_pydot.to_pydot(graph).to_string().replace("\n", ""))

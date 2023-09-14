@@ -1,3 +1,5 @@
+import filecmp
+
 import pytest
 import cfpq_data
 import os
@@ -54,23 +56,27 @@ def test_get_graph_info_ws():
 
 
 def test_labeled_two_cycles_graph_to_dot():
-
     file_name = "graph"
-    full_file_name = "graph.dot"
+    full_file_name = file_name + ".dot"
+    expected_file_name = "expected_graph"
+    full_expected_file_name = expected_file_name + ".dot"
     first_cycle_len = 10
     second_cycle_len = 20
     labels = ("a", "d")
 
+    # Create expecting graph
     cfpq_graph = cfpq_data.labeled_two_cycles_graph(
         first_cycle_len, second_cycle_len, labels=labels
     )
+
+    graphs_lib.write_to_dot(cfpq_graph, expected_file_name)
+
+    # Create a test graph
     graphs_lib.labeled_two_cycles_graph_to_dot(
         file_name, first_cycle_len, second_cycle_len, labels
     )
-    pydot_graph = pydot.graph_from_dot_file(full_file_name)
-    os.remove(full_file_name)
 
-    assert len(pydot_graph) == 1
-    read_cfpq_graph = nx.nx_pydot.from_pydot(pydot_graph[0])
-    assert cfpq_graph.number_of_edges() == read_cfpq_graph.number_of_edges()
-    assert cfpq_graph.number_of_nodes() == read_cfpq_graph.number_of_nodes()
+    assert filecmp.cmp(full_file_name, full_expected_file_name)
+
+    os.remove(full_file_name)
+    os.remove(full_expected_file_name)

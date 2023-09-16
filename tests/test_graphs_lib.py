@@ -56,27 +56,17 @@ def test_get_graph_info_ws():
 
 
 def test_labeled_two_cycles_graph_to_dot():
-    file_name = "graph"
+    file_name = "tests/static/graph"
     full_file_name = file_name + ".dot"
-    expected_file_name = "expected_graph"
-    full_expected_file_name = expected_file_name + ".dot"
-    first_cycle_len = 10
-    second_cycle_len = 20
+    expected_file_name = "tests/static/expected_graph.dot"
+    first_cycle_len = 4
+    second_cycle_len = 5
     labels = ("a", "d")
-
-    # Create expecting graph
-    cfpq_graph = cfpq_data.labeled_two_cycles_graph(
-        first_cycle_len, second_cycle_len, labels=labels
-    )
-
-    graphs_lib.write_to_dot(cfpq_graph, expected_file_name)
 
     # Create a test graph
     graphs_lib.labeled_two_cycles_graph_to_dot(
         file_name, first_cycle_len, second_cycle_len, labels
     )
 
-    assert filecmp.cmp(full_file_name, full_expected_file_name)
-
+    assert filecmp.cmp(full_file_name, expected_file_name, shallow=False)
     os.remove(full_file_name)
-    os.remove(full_expected_file_name)

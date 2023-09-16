@@ -67,5 +67,6 @@ def write_to_dot(graph: any, path: str):
     path: str
         The name to the file where the graph will be written.
     """
-    with open(path + ".dot", "w") as file:
-        file.write(nx.nx_pydot.to_pydot(graph).to_string().replace("\n", ""))
+
+    nx.nx_pydot.to_pydot(graph).write(path + ".dot")
+    return

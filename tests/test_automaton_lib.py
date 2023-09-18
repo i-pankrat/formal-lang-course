@@ -101,7 +101,9 @@ def test_graph_to_nfa_from_cpfq_data():
         if random_int % 9 == 0:
             final_nodes.append(State(node))
 
-    nfa = automaton_lib.graph_to_nfa(g, start_states=start_nodes, final_states=final_nodes)
+    nfa = automaton_lib.graph_to_nfa(
+        g, start_states=start_nodes, final_states=final_nodes
+    )
     assert len(nfa.states) == nodes
     assert len(nfa.start_states) == len(start_nodes)
     assert len(nfa.final_states) == len(final_nodes)
@@ -111,11 +113,13 @@ def test_graph_to_nfa_from_cpfq_data():
 def test_graph_to_nfa_from_graph():
     g = nx.MultiDiGraph()
     nodes = ["Barnaul", "Saint Petersburg", "Kazan", "Moscow", "Bryansk"]
-    edges = [(nodes[0], nodes[1], {'label': '4056'}),
-             (nodes[1], nodes[2], {'label': '1526'}),
-             (nodes[2], nodes[3], {'label': '816'}),
-             (nodes[3], nodes[4], {'label': '393'}),
-             (nodes[4], nodes[0], {'label': '3994'})]
+    edges = [
+        (nodes[0], nodes[1], {"label": "4056"}),
+        (nodes[1], nodes[2], {"label": "1526"}),
+        (nodes[2], nodes[3], {"label": "816"}),
+        (nodes[3], nodes[4], {"label": "393"}),
+        (nodes[4], nodes[0], {"label": "3994"}),
+    ]
     g.add_nodes_from(nodes)
     g.add_edges_from(edges)
 
@@ -148,4 +152,3 @@ def test_graph_to_nfa_from_dot():
     assert len(nfa.start_states) == nodes
     assert len(nfa.final_states) == nodes
     assert len(nfa.symbols) == labels_num
-

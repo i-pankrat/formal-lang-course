@@ -6,6 +6,23 @@ import networkx as nx
 LABEL = "label"
 
 
+def get_graph_by_name(graph_name: str) -> nx.MultiDiGraph:
+    """Get graph by its graph.
+
+    Parameters
+    ----------
+    graph_name : str
+        The name to the graph from cfpq_data dataset.
+
+    Returns
+    -------
+    graph : networkx.MultiDiGraph:
+        The graph from cfpq_data dataset.
+    """
+    p = cfpq_data.download(graph_name)
+    return cfpq_data.graph_from_csv(p)
+
+
 def get_graph_info(graph_name: str) -> Tuple[int, int, set]:
     """Get general information about the graph.
 
@@ -21,8 +38,7 @@ def get_graph_info(graph_name: str) -> Tuple[int, int, set]:
         and labels of the graph.
     """
 
-    p = cfpq_data.download(graph_name)
-    g = cfpq_data.graph_from_csv(p)
+    g = get_graph_by_name(graph_name)
 
     # It is assumed that in the whole course the information on the edges is called "label"
     return (

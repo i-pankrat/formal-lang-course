@@ -1,10 +1,6 @@
 import filecmp
 
-import pytest
-import cfpq_data
 import os
-import networkx as nx
-import pydot
 
 from project import graphs_lib
 

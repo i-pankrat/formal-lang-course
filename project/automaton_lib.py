@@ -1,6 +1,5 @@
 from typing import List, Optional
 
-import networkx as nx
 import pyformlang.finite_automaton
 from pyformlang.regular_expression import Regex
 from pyformlang.finite_automaton import (

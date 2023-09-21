@@ -27,7 +27,7 @@ def regex_to_minimal_dfa(regex: Regex) -> DeterministicFiniteAutomaton:
 
     epsilon_nfa: EpsilonNFA = regex.to_epsilon_nfa()
     minimized: DeterministicFiniteAutomaton = epsilon_nfa.to_deterministic()
-    return minimized.to_deterministic()
+    return minimized.to_deterministic().minimize()
 
 
 def graph_to_nfa(

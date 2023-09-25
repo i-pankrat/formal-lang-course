@@ -1,9 +1,16 @@
 import random
+from string import ascii_lowercase, ascii_uppercase, ascii_letters
 
 import networkx as nx
 import pydot
 from pyformlang.regular_expression import Regex
-from pyformlang.finite_automaton import State
+from pyformlang.finite_automaton import (
+    State,
+    Symbol,
+    EpsilonNFA,
+    DeterministicFiniteAutomaton,
+    NondeterministicFiniteAutomaton,
+)
 
 from project import automaton_lib, graphs_lib
 
@@ -152,3 +159,145 @@ def test_graph_to_nfa_from_dot():
     assert len(nfa.start_states) == nodes
     assert len(nfa.final_states) == nodes
     assert len(nfa.symbols) == labels_num
+
+
+def test_intersect_two_finite_automatons():
+    class TestCase:
+        def __init__(self, fa1, fa2, result_fa):
+            self.fa1 = fa1
+            self.fa2 = fa2
+            self.result_fa = result_fa
+
+    symb_a = Symbol("a")
+    symb_b = Symbol("b")
+    symb_c = Symbol("c")
+
+    # An example from the lecture is used as one case study test
+    def first_fa() -> any:
+        fa = EpsilonNFA()
+
+        state0 = State(0)
+        state1 = State(1)
+
+        fa.add_start_state(state0)
+        fa.add_final_state(state1)
+
+        fa.add_transition(state0, symb_a, state0)
+        fa.add_transition(state0, symb_b, state1)
+        fa.add_transition(state1, symb_b, state0)
+        fa.add_transition(state1, symb_c, state1)
+        return fa
+
+    def second_fa() -> any:
+        fa = EpsilonNFA()
+
+        state0 = State(0)
+        state1 = State(1)
+
+        fa.add_start_state(state0)
+        fa.add_final_state(state1)
+
+        fa.add_transition(state0, symb_a, state0)
+        fa.add_transition(state0, symb_a, state1)
+        fa.add_transition(state1, symb_b, state1)
+        fa.add_transition(state1, symb_c, state1)
+        return fa
+
+    def result_fa() -> any:
+        fa = EpsilonNFA()
+
+        state0 = State(0)
+        state1 = State(1)
+        state3 = State(3)
+        fa.add_transitions(
+            [
+                (state0, symb_a, state0),
+                (state0, symb_a, state1),
+                (state1, symb_b, state3),
+                (state3, symb_c, state3),
+                (state3, symb_b, state1),
+            ]
+        )
+        fa.add_start_state(state0)
+        fa.add_final_state(state3)
+        return fa
+
+    # NFA with digits and ascii letters
+    def nfa_accepts_capital_letters() -> any:
+        regex_str = "".join(["(", "|".join(ascii_uppercase), ")", "*"])
+        return automaton_lib.regex_to_minimal_dfa(Regex(regex_str))
+
+    def nfa_accepts_lowercase_letters() -> any:
+        regex_str = "".join(["(", "|".join(ascii_lowercase), ")", "*"])
+        return automaton_lib.regex_to_minimal_dfa(Regex(regex_str))
+
+    def nfa_accepts_all_letters() -> any:
+        regex_str = "".join(["(", "|".join(ascii_letters), ")", "*"])
+        return automaton_lib.regex_to_minimal_dfa(Regex(regex_str))
+
+    def nfa_accepts_digits() -> any:
+        regex_str = "".join(["(", "|".join("123456789"), ")", "*"])
+        return automaton_lib.regex_to_minimal_dfa(Regex(regex_str))
+
+    def nfa_accepts_digits_and_capital_letters() -> any:
+        regex_str = "".join(["(", "|".join(ascii_uppercase + "123456789"), ")", "*"])
+        return automaton_lib.regex_to_minimal_dfa(Regex(regex_str))
+
+    def nfa_accepts_digits_and_lowercase_letters() -> any:
+        regex_str = "".join(["(", "|".join(ascii_lowercase + "123456789"), ")", "*"])
+        return automaton_lib.regex_to_minimal_dfa(Regex(regex_str))
+
+    def empty_fa() -> any:
+        state = State(0)
+        fa = EpsilonNFA()
+        fa.add_start_state(state)
+        fa.add_final_state(state)
+        return fa
+
+    fa = {
+        "empty": empty_fa(),
+        "accepts_digits_and_lowercase_letters": nfa_accepts_digits_and_lowercase_letters(),
+        "accepts_digits_and_capital_letters": nfa_accepts_digits_and_capital_letters(),
+        "accepts_digits": nfa_accepts_digits(),
+        "accepts_all_letters": nfa_accepts_all_letters(),
+        "accepts_lowercase_letters": nfa_accepts_lowercase_letters(),
+        "accepts_capital_letters": nfa_accepts_capital_letters(),
+        "first": first_fa(),
+        "second": second_fa(),
+        "result": result_fa(),
+    }
+
+    test_cases = [
+        TestCase(fa["first"], fa["second"], fa["result"]),
+        TestCase(EpsilonNFA(), fa["result"], EpsilonNFA()),
+        TestCase(
+            DeterministicFiniteAutomaton(), fa["result"], DeterministicFiniteAutomaton()
+        ),
+        TestCase(
+            NondeterministicFiniteAutomaton(),
+            fa["result"],
+            NondeterministicFiniteAutomaton(),
+        ),
+        TestCase(
+            fa["accepts_all_letters"],
+            fa["accepts_capital_letters"],
+            fa["accepts_capital_letters"],
+        ),
+        TestCase(
+            fa["accepts_all_letters"],
+            fa["accepts_lowercase_letters"],
+            fa["accepts_lowercase_letters"],
+        ),
+        TestCase(
+            fa["accepts_capital_letters"], fa["accepts_lowercase_letters"], fa["empty"]
+        ),
+        TestCase(
+            fa["accepts_digits_and_capital_letters"],
+            fa["accepts_digits_and_lowercase_letters"],
+            fa["accepts_digits"],
+        ),
+    ]
+
+    for case in test_cases:
+        res = automaton_lib.intersect_two_finite_automatons(case.fa1, case.fa2)
+        assert res.is_equivalent_to(case.result_fa)

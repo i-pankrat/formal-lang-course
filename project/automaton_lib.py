@@ -1,6 +1,7 @@
 from typing import List, Optional
 
-import pyformlang.finite_automaton
+from project.Automaton import Automaton
+
 from pyformlang.regular_expression import Regex
 from pyformlang.finite_automaton import (
     DeterministicFiniteAutomaton,
@@ -50,7 +51,7 @@ def graph_to_nfa(
         Nondeterministic finite automaton obtained from the graph.
     """
 
-    nfa = pyformlang.finite_automaton.EpsilonNFA.from_networkx(graph)
+    nfa = EpsilonNFA.from_networkx(graph)
 
     if start_states:
         for state in start_states:
@@ -66,3 +67,10 @@ def graph_to_nfa(
         for state in nfa.states:
             nfa.add_final_state(state)
     return nfa.remove_epsilon_transitions()
+
+
+def intersect_two_finite_automatons(first_fa, second_fa) -> any:
+    first_automaton = Automaton.from_fa(first_fa)
+    second_automaton = Automaton.from_fa(second_fa)
+    intersection_automaton = first_automaton.intersect(second_automaton)
+    return intersection_automaton.to_automata()

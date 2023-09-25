@@ -69,7 +69,23 @@ def graph_to_nfa(
     return nfa.remove_epsilon_transitions()
 
 
-def intersect_two_finite_automatons(first_fa, second_fa) -> any:
+def intersect_two_finite_automatons(first_fa: any, second_fa: any) -> any:
+
+    """Computes the intersection of two automata
+
+    Parameters
+    ----------
+    first_fa : any
+        Finite automaton from pyformlang
+    second_fa: Optional[List[State]]
+        Finite automaton from pyformlang
+
+    Returns
+    -------
+    fa : any
+        Returns an intersection automaton from pyformlang
+    """
+
     first_automaton = Automaton.from_fa(first_fa)
     second_automaton = Automaton.from_fa(second_fa)
     intersection_automaton = first_automaton.intersect(second_automaton)

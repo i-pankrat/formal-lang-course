@@ -8,8 +8,14 @@ from pyformlang.finite_automaton import (
 
 
 class Automaton:
-    def __init__(self, start_states: set, final_states: set, symbols: set, symbol_matrices: Dict[any, csr_array],
-                 mapping: Dict[any, int]):
+    def __init__(
+        self,
+        start_states: set,
+        final_states: set,
+        symbols: set,
+        symbol_matrices: Dict[any, csr_array],
+        mapping: Dict[any, int],
+    ):
         self.start_states: set = start_states
         self.final_states: set = final_states
         self.symbols = symbols
@@ -17,7 +23,18 @@ class Automaton:
         self.old_state_to_new = mapping
 
     @classmethod
-    def from_fa(cls, fa: EpsilonNFA) -> "Automaton":
+    def from_fa(cls, fa: any) -> "Automaton":
+        """Turns the automaton into an adjacency matrix
+
+        Parameters
+        ----------
+        fa : any
+            Finite automaton from pyformlang
+
+        Returns
+        -------
+        automaton : Automaton
+        """
         mapping = {state: i for i, state in enumerate(fa.states)}
         symbol_to_data = {}
 
@@ -44,6 +61,17 @@ class Automaton:
         return cls(fa.start_states, fa.final_states, fa.symbols, result_map, mapping)
 
     def intersect(self, other: "Automaton") -> "Automaton":
+        """Intersects two automata
+
+        Parameters
+        ----------
+        other : Automaton
+
+        Returns
+        -------
+        automaton : Automaton
+            Returns the result intersection
+        """
 
         # Kron product for each symbol
         result = {}
@@ -72,6 +100,13 @@ class Automaton:
         return Automaton(start_states, final_states, symbols, result, mapping)
 
     def to_automata(self) -> EpsilonNFA:
+        """Turns the automaton into a finite automaton from pyformlang
+
+        Returns
+        -------
+        automaton : any
+            Finite automaton from pyformlang
+        """
         fa = EpsilonNFA()
 
         # Add transition to automaton of intersection
@@ -90,11 +125,21 @@ class Automaton:
         return fa
 
     def transitive_closure(self) -> csr_matrix:
+        """Constructs a transitive closure of the automaton
+
+        Returns
+        -------
+        adjacency_matrix : csr_matrix
+            Returns transitive closure matrix
+        """
+
         n = len(self.old_state_to_new)
         if len(self.symbol_matrices) == 0:
             return csr_array((n, n), dtype="bool")
 
-        adj_matrix = sum(self.symbol_matrices.values(), start=csr_array((n, n), dtype="bool"))
+        adj_matrix = sum(
+            self.symbol_matrices.values(), start=csr_array((n, n), dtype="bool")
+        )
         prev_nnz = adj_matrix.nnz
         curr_nnz = 0
 

@@ -96,10 +96,31 @@ def write_to_dot(graph: any, path: str):
 
 def make_regex_request_to_graph(
     regex: Regex,
-    graph: nx.MultiDiGraph,
+    graph: any,
     start_vertexes: List[any],
     final_vertexes: List[any],
 ) -> List[Tuple[any, any]]:
+
+    """Perform regular queries on graphs
+
+    Parameters
+    ----------
+    regex : Regex
+        Finite automaton from pyformlang
+    graph: nx.MultiDiGraph
+        Graph from networkx
+    start_vertexes : any
+        Start states of finite automaton
+    final_vertexes: Optional[List[State]]
+        Final states of finite automaton
+
+
+    Returns
+    -------
+    fa : any
+        Return those pairs of vertices from the given start and end vertices,
+        which are connected by a path forming by the regex.
+    """
 
     map(State, start_vertexes)
     map(State, final_vertexes)

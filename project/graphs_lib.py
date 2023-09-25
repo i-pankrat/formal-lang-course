@@ -138,15 +138,15 @@ def make_regex_request_to_graph(
 
     result = []  # List of pairs
     # Add pairs to list
-    graph_states_num = len(graph.nodes)
+    regex_states_num = len(regex_fa.states)
     new_states_to_graph_states = {
         k: v for v, k in first_automaton.old_state_to_new.items()
     }
     for start in intersection_automaton.start_states:
         for final in intersection_automaton.final_states:
             if transitive_closure[start, final]:
-                g_start = new_states_to_graph_states[start // graph_states_num]
-                g_final = new_states_to_graph_states[final // graph_states_num]
+                g_start = new_states_to_graph_states[start // regex_states_num]
+                g_final = new_states_to_graph_states[final // regex_states_num]
                 result.append((g_start, g_final))
 
     return result

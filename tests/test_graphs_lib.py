@@ -88,3 +88,27 @@ def test_make_regex_request_to_graph():
 
     answer = graphs_lib.make_regex_request_to_graph(regex, g, nodes[:1], nodes[1:2])
     assert result == answer
+
+    # Second test case
+    g = nx.MultiDiGraph()  # Accepts (a*)|(b*)
+    nodes = ["fst", "snd", "thd"]
+    edges = [
+        (nodes[0], nodes[1], {graphs_lib.LABEL: "a"}),
+        (nodes[1], nodes[1], {graphs_lib.LABEL: "a"}),
+        (nodes[0], nodes[2], {graphs_lib.LABEL: "b"}),
+        (nodes[2], nodes[2], {graphs_lib.LABEL: "b"}),
+    ]
+    g.add_nodes_from(nodes)
+    g.add_edges_from(edges)
+
+    # Regex accepts a*
+    regex = Regex("a*")
+    result = [("fst", "snd")]
+    answer = graphs_lib.make_regex_request_to_graph(regex, g, nodes[:1], nodes[1:2])
+    assert result == answer
+
+    # Regex accepts b*
+    regex = Regex("b*")
+    result = [("fst", "thd")]
+    answer = graphs_lib.make_regex_request_to_graph(regex, g, nodes[:1], nodes[2:3])
+    assert result == answer

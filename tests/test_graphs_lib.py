@@ -112,3 +112,23 @@ def test_make_regex_request_to_graph():
     result = [("fst", "thd")]
     answer = graphs_lib.make_regex_request_to_graph(regex, g, nodes[:1], nodes[2:3])
     assert result == answer
+
+
+def test_bfs_rpq():
+
+    # Test case from https://github.com/FormalLanguageConstrainedPathQuerying/FormalLanguageConstrainedReachability-LectureNotes
+    regex = Regex("b*.a.b")
+    g = nx.MultiDiGraph()
+    nodes = [0, 1, 2, 3]
+    edges = [
+        (nodes[0], nodes[1], {graphs_lib.LABEL: "a"}),
+        (nodes[0], nodes[3], {graphs_lib.LABEL: "b"}),
+        (nodes[3], nodes[0], {graphs_lib.LABEL: "b"}),
+        (nodes[1], nodes[2], {graphs_lib.LABEL: "b"}),
+        (nodes[2], nodes[0], {graphs_lib.LABEL: "a"}),
+    ]
+    g.add_nodes_from(nodes)
+    g.add_edges_from(edges)
+
+    res = graphs_lib.bfs_rpq(regex, g, [nodes[0]], [nodes[2]], False)
+    assert res == [nodes[2]]

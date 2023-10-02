@@ -204,7 +204,7 @@ class Automaton:
                         j, regex_size + self.old_state_to_new[state]
                     ] = True
 
-            front[i * regex_size:(i + 1) * regex_size, 0:] = start_state_matrix
+            front[i * regex_size : (i + 1) * regex_size, 0:] = start_state_matrix
 
         return front.tocsr(), start_states_mapping
 
@@ -226,7 +226,10 @@ class Automaton:
 
         # Create vector for initial states of both matrices
         if is_separately:
-            is_visited, start_states_mapping = self._create_front_matrix_for_all_start_states(regex)
+            (
+                is_visited,
+                start_states_mapping,
+            ) = self._create_front_matrix_for_all_start_states(regex)
         else:
             is_visited = self._create_front_matrix(regex)
 
@@ -253,7 +256,11 @@ class Automaton:
             s = i % len(regex.final_states) in regex_final
             tmp2 = j - regex_size
             t = j - regex_size in graph_final
-            if j >= regex_size and i % len(regex.states) in regex_final and j - regex_size in graph_final:
+            if (
+                j >= regex_size
+                and i % len(regex.states) in regex_final
+                and j - regex_size in graph_final
+            ):
                 final = j - regex_size
                 if is_separately:
                     result.add((start_states_mapping[i // len(regex.states)], final))

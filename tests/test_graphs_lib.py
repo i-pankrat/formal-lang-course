@@ -113,6 +113,7 @@ def test_make_regex_request_to_graph():
     answer = graphs_lib.make_regex_request_to_graph(regex, g, nodes[:1], nodes[2:3])
     assert result == answer
 
+
 def test_bfs_rpq_for_vertex_set():
 
     # Test case from

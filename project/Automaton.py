@@ -1,6 +1,6 @@
-from typing import Dict
+from typing import Dict, List
 
-from scipy.sparse import kron, csr_array, csr_matrix
+from scipy.sparse import kron, csr_array, csr_matrix, block_diag, lil_array, identity
 from pyformlang.finite_automaton import (
     EpsilonNFA,
     State,
@@ -12,12 +12,14 @@ class Automaton:
         self,
         start_states: set,
         final_states: set,
+        states: set,
         symbols: set,
         symbol_matrices: Dict[any, csr_array],
         mapping: Dict[any, int],
     ):
         self.start_states: set = start_states
         self.final_states: set = final_states
+        self.states = states
         self.symbols = symbols
         self.symbol_matrices = symbol_matrices
         self.old_state_to_new = mapping
@@ -58,7 +60,9 @@ class Automaton:
             row, col, data = v
             result_map[k] = csr_array((data, (row, col)), shape=shape)
 
-        return cls(fa.start_states, fa.final_states, fa.symbols, result_map, mapping)
+        return cls(
+            fa.start_states, fa.final_states, fa.states, fa.symbols, result_map, mapping
+        )
 
     def intersect(self, other: "Automaton") -> "Automaton":
         """Intersects two automata
@@ -83,6 +87,7 @@ class Automaton:
 
         final_states = set()
         start_states = set()
+        states = set()
         mapping = {}
 
         # Save start and final states for new automaton
@@ -90,6 +95,7 @@ class Automaton:
             for state2, i2 in other.old_state_to_new.items():
                 intersection_state = i1 * len(other.old_state_to_new) + i2
                 mapping[intersection_state] = intersection_state
+                states.add(intersection_state)
 
                 if state1 in self.start_states and state2 in other.start_states:
                     start_states.add(intersection_state)
@@ -97,7 +103,7 @@ class Automaton:
                 if state1 in self.final_states and state2 in other.final_states:
                     final_states.add(intersection_state)
 
-        return Automaton(start_states, final_states, symbols, result, mapping)
+        return Automaton(start_states, final_states, states, symbols, result, mapping)
 
     def to_automata(self) -> EpsilonNFA:
         """Turns the automaton into a finite automaton from pyformlang

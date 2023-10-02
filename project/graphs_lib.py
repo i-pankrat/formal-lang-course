@@ -1,11 +1,10 @@
 from project import automaton_lib as autolib
 from project.Automaton import Automaton
 
-from typing import Tuple, List, Dict
+from typing import Tuple, List
 
 import cfpq_data
 import networkx as nx
-from scipy.sparse import csr_array, identity
 from pyformlang.regular_expression import Regex
 from pyformlang.finite_automaton import State
 
@@ -150,3 +149,28 @@ def make_regex_request_to_graph(
                 result.append((g_start, g_final))
 
     return result
+
+
+def bfs_rpq(
+    regex: Regex,
+    graph: any,
+    start_vertexes: List[any],
+    final_vertexes: List[any],
+    isSeparately: bool,
+) -> List[any]:
+
+    map(State, start_vertexes)
+    map(State, final_vertexes)
+    # Convert graph to automaton
+    graph_fa = autolib.graph_to_nfa(graph, start_vertexes, final_vertexes)
+
+    # Convert regex to automaton
+    regex_fa = autolib.regex_to_minimal_dfa(regex)
+
+    # Convert fa from nx to Automaton
+    graph_automaton = Automaton.from_fa(graph_fa)
+    regex_automaton = Automaton.from_fa(regex_fa)
+
+    answer = graph_automaton.bfs_rpq(regex_automaton, isSeparately)
+    mapping = {v: k for k, v in graph_automaton.old_state_to_new.items()}
+    return [mapping[i] for i in answer]

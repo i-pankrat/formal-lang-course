@@ -154,3 +154,94 @@ class Automaton:
             prev_nnz, curr_nnz = curr_nnz, adj_matrix.nnz
 
         return adj_matrix
+
+    def _diagonal_sum(self, other: "Automaton") -> Dict[any, csr_matrix]:
+        matrices = {}
+        for symbol in self.symbols & other.symbols:
+            matrices[symbol] = block_diag(
+                (other.symbol_matrices[symbol], self.symbol_matrices[symbol]),
+                format="csr",
+            )
+        return matrices
+
+    def _create_front_matrix(self, regex: "Automaton") -> csr_matrix:
+        self_size = len(self.old_state_to_new)
+        regex_size = len(regex.old_state_to_new)
+        front = lil_array((regex_size, regex_size + self_size), dtype=bool)
+
+        # Calculate start graph vertexes
+        graph_start = lil_array([i in self.start_states for i in self.states])
+        start_states = [regex.old_state_to_new[j] for j in regex.start_states]
+
+        # Init front matrix
+        for i in range(regex_size):
+            front[i, i] = True
+            if i in start_states:
+                front[[i], regex_size:] = graph_start
+
+        return front.tocsr()
+
+    def bfs_rpq(self, regex: "Automaton", isSeparately: bool) -> List[any]:
+
+        self_size = len(self.states)
+        regex_size = len(regex.states)
+
+        # Intersect symbols
+        symbols = self.symbols & regex.symbols
+
+        # Create a set of block-diagonal matrices
+        matrices = self._diagonal_sum(regex)
+
+        # Create vector for initial states of both matrices
+        is_visited = self._create_front_matrix(regex)  # TODO: if isSeparately=True
+
+        # Starting bfs
+        while True:
+            old_is_visited = is_visited.nnz
+
+            # Making bfs for each boolean matrix
+            for symbol in symbols:
+                result = is_visited @ matrices[symbol]
+                is_visited += _transform_to_new_front(result, regex_n=regex_size)
+
+            if old_is_visited == is_visited.nnz:
+                break
+
+        result = []
+        regex_final = {regex.old_state_to_new[i] for i in regex.final_states}
+        graph_final = {self.old_state_to_new[i] for i in self.final_states}
+        rows, cols = is_visited.nonzero()
+        for i, j in zip(rows, cols):
+            if j >= regex_size and i in regex_final and j - regex_size in graph_final:
+                result.append(j - regex_size)
+
+        return result
+
+
+def _column_boolean_addition(matrix: csr_matrix) -> csr_matrix:
+    n, _ = matrix.shape
+    result = csr_array(shape=(1, n))
+
+    for _, j in zip(matrix.nonzero()):
+        result[j] += True
+
+    return result
+
+
+def _create_init_front_matrix(graph_n: int, regex_n: int) -> csr_matrix:
+    regex = identity(regex_n, format="csr", dtype=bool)
+    graph = csr_array(shape=(graph_n, graph_n), dtype=bool)
+    return block_diag((regex, graph), format="csr", dtype=bool)
+
+
+def _transform_to_new_front(symbol_result: csr_matrix, regex_n: int) -> csr_matrix:
+
+    new_front = lil_array(symbol_result.shape, dtype=bool)
+    rows, cols = symbol_result.nonzero()
+    for i, j in zip(rows, cols):
+        if j < regex_n:
+            row = symbol_result.getrow(i)
+            if row.nnz > 1:
+                new_front[j] = row.tolil()
+
+    return new_front.tocsr()

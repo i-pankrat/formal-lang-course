@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple, Union, Set
 
 from scipy.sparse import kron, csr_array, csr_matrix, block_diag, lil_array, identity
 from pyformlang.finite_automaton import (
@@ -164,7 +164,7 @@ class Automaton:
             )
         return matrices
 
-    def _create_front_matrix(self, regex: "Automaton") -> csr_matrix:
+    def _create_front_matrix(self, regex: "Automaton") -> Tuple[csr_matrix, List[any]]:
         self_size = len(self.old_state_to_new)
         regex_size = len(regex.old_state_to_new)
         front = lil_array((regex_size, regex_size + self_size), dtype=bool)
@@ -181,7 +181,36 @@ class Automaton:
 
         return front.tocsr()
 
-    def bfs_rpq(self, regex: "Automaton", isSeparately: bool) -> List[any]:
+    def _create_front_matrix_for_all_start_states(
+        self, regex: "Automaton"
+    ) -> Tuple[csr_matrix, List[any]]:
+        self_size = len(self.old_state_to_new)
+        regex_size = len(regex.old_state_to_new)
+        start_states_num = len(self.start_states)
+        front = lil_array(
+            (start_states_num * regex_size, regex_size + self_size), dtype=bool
+        )
+        start_states = [regex.old_state_to_new[j] for j in regex.start_states]
+        start_states_mapping = []
+        for i, state in enumerate(self.start_states):
+            start_states_mapping.append(self.old_state_to_new[state])
+            start_state_matrix = lil_array(
+                (regex_size, regex_size + self_size), dtype=bool
+            )
+            for j in range(regex_size):
+                start_state_matrix[j, j] = True
+                if j in start_states:
+                    start_state_matrix[
+                        j, regex_size + self.old_state_to_new[state]
+                    ] = True
+
+            front[i * regex_size:(i + 1) * regex_size, 0:] = start_state_matrix
+
+        return front.tocsr(), start_states_mapping
+
+    def bfs_rpq(
+        self, regex: "Automaton", is_separately: bool
+    ) -> Union[Set[any], Set[Tuple[any, any]]]:
 
         self_size = len(self.states)
         regex_size = len(regex.states)
@@ -192,8 +221,14 @@ class Automaton:
         # Create a set of block-diagonal matrices
         matrices = self._diagonal_sum(regex)
 
+        is_visited = None
+        start_states_mapping = None
+
         # Create vector for initial states of both matrices
-        is_visited = self._create_front_matrix(regex)  # TODO: if isSeparately=True
+        if is_separately:
+            is_visited, start_states_mapping = self._create_front_matrix_for_all_start_states(regex)
+        else:
+            is_visited = self._create_front_matrix(regex)
 
         # Starting bfs
         while True:
@@ -202,18 +237,28 @@ class Automaton:
             # Making bfs for each boolean matrix
             for symbol in symbols:
                 result = is_visited @ matrices[symbol]
-                is_visited += _transform_to_new_front(result, regex_n=regex_size)
+                transformed = _transform_to_new_front(result, regex_n=regex_size)
+                is_visited += transformed
 
             if old_is_visited == is_visited.nnz:
                 break
 
-        result = []
+        result = set()
         regex_final = {regex.old_state_to_new[i] for i in regex.final_states}
         graph_final = {self.old_state_to_new[i] for i in self.final_states}
         rows, cols = is_visited.nonzero()
         for i, j in zip(rows, cols):
-            if j >= regex_size and i in regex_final and j - regex_size in graph_final:
-                result.append(j - regex_size)
+            f = j >= regex_size
+            tmp1 = i % len(regex.final_states)
+            s = i % len(regex.final_states) in regex_final
+            tmp2 = j - regex_size
+            t = j - regex_size in graph_final
+            if j >= regex_size and i % len(regex.states) in regex_final and j - regex_size in graph_final:
+                final = j - regex_size
+                if is_separately:
+                    result.add((start_states_mapping[i // len(regex.states)], final))
+                else:
+                    result.add(final)
 
         return result
 
@@ -242,6 +287,6 @@ def _transform_to_new_front(symbol_result: csr_matrix, regex_n: int) -> csr_matr
         if j < regex_n:
             row = symbol_result.getrow(i)
             if row.nnz > 1:
-                new_front[j] = row.tolil()
+                new_front[[i // regex_n * regex_n + j], :] += row.tolil()
 
     return new_front.tocsr()

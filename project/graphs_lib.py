@@ -1,7 +1,7 @@
 from project import automaton_lib as autolib
 from project.Automaton import Automaton
 
-from typing import Tuple, List
+from typing import Tuple, List, Set
 
 import cfpq_data
 import networkx as nx
@@ -156,8 +156,8 @@ def bfs_rpq(
     graph: any,
     start_vertexes: List[any],
     final_vertexes: List[any],
-    isSeparately: bool,
-) -> List[any]:
+    is_separately: bool,
+) -> Set[any]:
 
     map(State, start_vertexes)
     map(State, final_vertexes)
@@ -171,6 +171,11 @@ def bfs_rpq(
     graph_automaton = Automaton.from_fa(graph_fa)
     regex_automaton = Automaton.from_fa(regex_fa)
 
-    answer = graph_automaton.bfs_rpq(regex_automaton, isSeparately)
+    result = graph_automaton.bfs_rpq(regex_automaton, is_separately)
     mapping = {v: k for k, v in graph_automaton.old_state_to_new.items()}
-    return [mapping[i] for i in answer]
+
+    if is_separately:
+        map(lambda a, b: (mapping[a], mapping[b]), result)
+        return result
+    else:
+        return {mapping[i] for i in result}

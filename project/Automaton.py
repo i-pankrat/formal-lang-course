@@ -156,6 +156,17 @@ class Automaton:
         return adj_matrix
 
     def _diagonal_sum(self, other: "Automaton") -> Dict[any, csr_matrix]:
+        """Build a block diagonal matrix from provided matrices.
+
+        Parameters
+        ----------
+        other : Automaton
+
+        Returns
+        -------
+        symbol_matrices : Dict[any, csr_matrix]
+            Returns result of the operation
+        """
         matrices = {}
         for symbol in self.symbols & other.symbols:
             matrices[symbol] = block_diag(
@@ -164,7 +175,19 @@ class Automaton:
             )
         return matrices
 
-    def _create_front_matrix(self, regex: "Automaton") -> Tuple[csr_matrix, List[any]]:
+    def _create_front_matrix(self, regex: "Automaton") -> csr_matrix:
+        """Create front matrix for bfs. It is used in the case of solving the problem for the whole set of vertices.
+
+        Parameters
+        ----------
+        regex : Automaton
+            Regular expression represented as an adjacency matrix
+
+        Returns
+        -------
+        front : Tuple[csr_matrix, List[any]]
+            Returns front
+        """
         self_size = len(self.old_state_to_new)
         regex_size = len(regex.old_state_to_new)
         front = lil_array((regex_size, regex_size + self_size), dtype=bool)
@@ -184,6 +207,18 @@ class Automaton:
     def _create_front_matrix_for_all_start_states(
         self, regex: "Automaton"
     ) -> Tuple[csr_matrix, List[any]]:
+        """Create front matrix for bfs. It is used in the case of solving the problem for every vertex at the set.
+
+        Parameters
+        ----------
+        regex : Automaton
+            Regular expression represented as an adjacency matrix
+
+        Returns
+        -------
+        front_and_mapping : Tuple[csr_matrix, List[any]]
+            Returns front
+        """
         self_size = len(self.old_state_to_new)
         regex_size = len(regex.old_state_to_new)
         start_states_num = len(self.start_states)
@@ -211,8 +246,25 @@ class Automaton:
     def bfs_rpq(
         self, regex: "Automaton", is_separately: bool
     ) -> Union[Set[any], Set[Tuple[any, any]]]:
+        """It allows you to solve a reachability problem on a graph represented as an adjacency matrix and a regular
+        expression represented as an adjacency matrix. If the flag is set to true, it solves the reachability
+        problem for each individual start vertex, otherwise for the whole set of start vertices.
 
-        self_size = len(self.states)
+        Parameters
+        ----------
+        regex : Automaton
+            Regular expression represented as an adjacency matrix
+        is_separately : bool
+            Flag represented type of solving problem
+
+        Returns
+        -------
+        States : Tuple[csr_matrix, List[any]]
+            Depending on the type of problem being solved, it returns either a set of reachable states or a set of
+            pairs of states, where the first element is responsible for the starting state and the second for the
+            ending state.
+        """
+
         regex_size = len(regex.states)
 
         # Intersect symbols
@@ -251,11 +303,6 @@ class Automaton:
         graph_final = {self.old_state_to_new[i] for i in self.final_states}
         rows, cols = is_visited.nonzero()
         for i, j in zip(rows, cols):
-            f = j >= regex_size
-            tmp1 = i % len(regex.final_states)
-            s = i % len(regex.final_states) in regex_final
-            tmp2 = j - regex_size
-            t = j - regex_size in graph_final
             if (
                 j >= regex_size
                 and i % len(regex.states) in regex_final
@@ -270,23 +317,23 @@ class Automaton:
         return result
 
 
-def _column_boolean_addition(matrix: csr_matrix) -> csr_matrix:
-    n, _ = matrix.shape
-    result = csr_array(shape=(1, n))
-
-    for _, j in zip(matrix.nonzero()):
-        result[j] += True
-
-    return result
-
-
-def _create_init_front_matrix(graph_n: int, regex_n: int) -> csr_matrix:
-    regex = identity(regex_n, format="csr", dtype=bool)
-    graph = csr_array(shape=(graph_n, graph_n), dtype=bool)
-    return block_diag((regex, graph), format="csr", dtype=bool)
-
-
 def _transform_to_new_front(symbol_result: csr_matrix, regex_n: int) -> csr_matrix:
+    """Transforms the front into valid on according to the following rules:
+    1. The left part of the matrix may or may not have units on the main diagonal.
+    2. Zero rows are not represented in the matrix
+
+    Parameters
+    ----------
+    symbol_result : csr_matrix
+        Invalid front
+    regex_n : int
+        Number of state at the regex fa
+
+    Returns
+    -------
+    Front : csr_matrix
+        Valid new front
+    """
 
     new_front = lil_array(symbol_result.shape, dtype=bool)
     rows, cols = symbol_result.nonzero()

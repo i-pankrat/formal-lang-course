@@ -1,7 +1,7 @@
 from project import automaton_lib as autolib
 from project.Automaton import Automaton
 
-from typing import Tuple, List, Set
+from typing import Tuple, List, Set, Optional
 
 import cfpq_data
 import networkx as nx
@@ -154,10 +154,38 @@ def make_regex_request_to_graph(
 def bfs_rpq(
     regex: Regex,
     graph: any,
-    start_vertexes: List[any],
-    final_vertexes: List[any],
+    start_vertexes: Optional[List[any]],
+    final_vertexes: Optional[List[any]],
     is_separately: bool,
 ) -> Set[any]:
+    """It allows you to solve a reachability problem on a graph represented as an adjacency matrix and a regular
+    expression represented as an adjacency matrix. If the flag is set to true, it solves the reachability
+    problem for each individual start vertex, otherwise for the whole set of start vertices.
+
+    Parameters
+    ----------
+    regex : Automaton
+        Regular expression represented as an adjacency matrix
+    graph : any
+        Graph from networkx
+    start_vertexes : Optional[List[any]]
+        Start vertexes. If none than all graph nodes are start vertexes
+    final_vertexes : Optional[List[any]]
+        Final vertexes. If none than all graph nodes are final vertexes
+    is_separately : bool
+        Flag represented type of solving problem
+
+    Returns
+    -------
+    States : States : Union[Set[any], Set[Tuple[any, any]]]
+        Depending on the type of problem being solved, it returns either a set of reachable states or a set of
+        pairs of states, where the first element is responsible for the starting state and the second for the
+        ending state.
+    """
+    if not start_vertexes:
+        start_vertexes = graph.nodes
+    if not final_vertexes:
+        final_vertexes = graph.nodes
 
     map(State, start_vertexes)
     map(State, final_vertexes)

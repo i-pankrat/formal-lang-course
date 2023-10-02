@@ -259,7 +259,7 @@ class Automaton:
 
         Returns
         -------
-        States : Tuple[csr_matrix, List[any]]
+        States : Union[Set[any], Set[Tuple[any, any]]]
             Depending on the type of problem being solved, it returns either a set of reachable states or a set of
             pairs of states, where the first element is responsible for the starting state and the second for the
             ending state.

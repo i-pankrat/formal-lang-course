@@ -133,6 +133,18 @@ def test_bfs_rpq_for_vertex_set():
 
     res = graphs_lib.bfs_rpq(regex, g, [nodes[0]], [nodes[2]], False)
     assert res == {nodes[2]}
+    # Check case that in case when we have the only one start vertex flag is_separately change nothing
+    res = graphs_lib.bfs_rpq(regex, g, [nodes[0]], [nodes[2]], True)
+    assert res == {(nodes[0], nodes[2])}
+    # Some other tests on the same regex and graph
+    res = graphs_lib.bfs_rpq(regex, g, [nodes[3]], nodes, False)
+    assert res == {nodes[2]}
+    res = graphs_lib.bfs_rpq(regex, g, [nodes[3]], None, False)
+    assert res == {nodes[2]}
+    res = graphs_lib.bfs_rpq(regex, g, [nodes[2]], nodes, False)
+    assert res == {nodes[3]}
+    res = graphs_lib.bfs_rpq(regex, g, [nodes[2]], None, False)
+    assert res == {nodes[3]}
 
 
 def test_bfs_rpq_for_every_vertex():
@@ -150,3 +162,34 @@ def test_bfs_rpq_for_every_vertex():
 
     res = graphs_lib.bfs_rpq(regex, g, [nodes[0], nodes[1]], [nodes[1], nodes[2]], True)
     assert res == {(nodes[0], nodes[1]), (nodes[1], nodes[2])}
+    # Expect empty set
+    res = graphs_lib.bfs_rpq(regex, g, [nodes[2]], None, True)
+    assert res == set()
+    # Some other tests for the same graph and regex expression
+    res = graphs_lib.bfs_rpq(regex, g, None, None, True)
+    assert res == {(nodes[0], nodes[1]), (nodes[1], nodes[2])}
+
+    # Change regex expression and do some more tests
+    regex = Regex("a.(c*).(a*).(d*)")
+    res = graphs_lib.bfs_rpq(regex, g, None, None, True)
+    assert res == {(nodes[0], nodes[1]), (nodes[0], nodes[2]), (nodes[1], nodes[2])}
+
+    regex = Regex("a.(c*).a.(d*)")
+    res = graphs_lib.bfs_rpq(regex, g, None, None, True)
+    assert res == {(nodes[0], nodes[2])}
+
+    regex = Regex("a.(c*)")
+    res = graphs_lib.bfs_rpq(regex, g, None, None, True)
+    assert res == {(nodes[0], nodes[1]), (nodes[1], nodes[2])}
+
+    regex = Regex("(a*).(c*).(d*)")
+    res = graphs_lib.bfs_rpq(regex, g, None, None, True)
+    assert res == {
+        (nodes[0], nodes[1]),
+        (nodes[0], nodes[2]),
+        (nodes[1], nodes[2]),
+        (nodes[0], nodes[0]),
+        (nodes[1], nodes[1]),
+        (nodes[2], nodes[2]),
+        (nodes[3], nodes[3]),
+    }

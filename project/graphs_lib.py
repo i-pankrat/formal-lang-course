@@ -1,7 +1,13 @@
-from typing import Tuple
+from project import automaton_lib as autolib
+from project.Automaton import Automaton
+
+from typing import Tuple, List, Dict
 
 import cfpq_data
 import networkx as nx
+from scipy.sparse import csr_array, identity
+from pyformlang.regular_expression import Regex
+from pyformlang.finite_automaton import State
 
 LABEL = "label"
 
@@ -86,3 +92,61 @@ def write_to_dot(graph: any, path: str):
 
     nx.nx_pydot.to_pydot(graph).write(path + ".dot")
     return
+
+
+def make_regex_request_to_graph(
+    regex: Regex,
+    graph: any,
+    start_vertexes: List[any],
+    final_vertexes: List[any],
+) -> List[Tuple[any, any]]:
+
+    """Perform regular queries on graphs
+
+    Parameters
+    ----------
+    regex : Regex
+        Finite automaton from pyformlang
+    graph: nx.MultiDiGraph
+        Graph from networkx
+    start_vertexes : any
+        Start states of finite automaton
+    final_vertexes: Optional[List[State]]
+        Final states of finite automaton
+
+
+    Returns
+    -------
+    fa : any
+        Return those pairs of vertices from the given start and end vertices,
+        which are connected by a path forming by the regex.
+    """
+
+    map(State, start_vertexes)
+    map(State, final_vertexes)
+    # Convert graph to automaton
+    graph_fa = autolib.graph_to_nfa(graph, start_vertexes, final_vertexes)
+
+    # Convert regex to automaton
+    regex_fa = autolib.regex_to_minimal_dfa(regex)
+
+    # Convert fa from nx to Automaton
+    first_automaton = Automaton.from_fa(graph_fa)
+    second_automaton = Automaton.from_fa(regex_fa)
+    intersection_automaton = first_automaton.intersect(second_automaton)
+    transitive_closure = intersection_automaton.transitive_closure()
+
+    result = []  # List of pairs
+    # Add pairs to list
+    regex_states_num = len(regex_fa.states)
+    new_states_to_graph_states = {
+        k: v for v, k in first_automaton.old_state_to_new.items()
+    }
+    for start in intersection_automaton.start_states:
+        for final in intersection_automaton.final_states:
+            if transitive_closure[start, final]:
+                g_start = new_states_to_graph_states[start // regex_states_num]
+                g_final = new_states_to_graph_states[final // regex_states_num]
+                result.append((g_start, g_final))
+
+    return result

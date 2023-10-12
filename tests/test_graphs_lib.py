@@ -1,8 +1,10 @@
 import filecmp
-
 import os
 
 from project import graphs_lib
+
+import networkx as nx
+from pyformlang.regular_expression import Regex
 
 
 def test_get_graph_info_skos():
@@ -66,3 +68,47 @@ def test_labeled_two_cycles_graph_to_dot():
 
     assert filecmp.cmp(full_file_name, expected_file_name, shallow=False)
     os.remove(full_file_name)
+
+
+def test_make_regex_request_to_graph():
+
+    # First test case
+    regex = Regex("a.(b|c)*")
+    g = nx.MultiDiGraph()
+    nodes = [0, 1]
+    edges = [
+        (nodes[0], nodes[0], {graphs_lib.LABEL: "a"}),
+        (nodes[0], nodes[1], {graphs_lib.LABEL: "b"}),
+        (nodes[1], nodes[0], {graphs_lib.LABEL: "b"}),
+        (nodes[1], nodes[1], {graphs_lib.LABEL: "c"}),
+    ]
+    g.add_nodes_from(nodes)
+    g.add_edges_from(edges)
+    result = [(0, 1)]
+
+    answer = graphs_lib.make_regex_request_to_graph(regex, g, nodes[:1], nodes[1:2])
+    assert result == answer
+
+    # Second test case
+    g = nx.MultiDiGraph()  # Accepts (a*)|(b*)
+    nodes = ["fst", "snd", "thd"]
+    edges = [
+        (nodes[0], nodes[1], {graphs_lib.LABEL: "a"}),
+        (nodes[1], nodes[1], {graphs_lib.LABEL: "a"}),
+        (nodes[0], nodes[2], {graphs_lib.LABEL: "b"}),
+        (nodes[2], nodes[2], {graphs_lib.LABEL: "b"}),
+    ]
+    g.add_nodes_from(nodes)
+    g.add_edges_from(edges)
+
+    # Regex accepts a*
+    regex = Regex("a*")
+    result = [("fst", "snd")]
+    answer = graphs_lib.make_regex_request_to_graph(regex, g, nodes[:1], nodes[1:2])
+    assert result == answer
+
+    # Regex accepts b*
+    regex = Regex("b*")
+    result = [("fst", "thd")]
+    answer = graphs_lib.make_regex_request_to_graph(regex, g, nodes[:1], nodes[2:3])
+    assert result == answer

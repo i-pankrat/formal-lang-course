@@ -1,11 +1,10 @@
 from project import automaton_lib as autolib
 from project.Automaton import Automaton
 
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Set, Optional
 
 import cfpq_data
 import networkx as nx
-from scipy.sparse import csr_array, identity
 from pyformlang.regular_expression import Regex
 from pyformlang.finite_automaton import State
 
@@ -150,3 +149,61 @@ def make_regex_request_to_graph(
                 result.append((g_start, g_final))
 
     return result
+
+
+def bfs_rpq(
+    regex: Regex,
+    graph: any,
+    start_vertexes: Optional[List[any]],
+    final_vertexes: Optional[List[any]],
+    is_separately: bool,
+) -> Set[any]:
+    """It allows you to solve a reachability problem on a graph represented as an adjacency matrix and a regular
+    expression represented as an adjacency matrix. If the flag is set to true, it solves the reachability
+    problem for each individual start vertex, otherwise for the whole set of start vertices.
+
+    Parameters
+    ----------
+    regex : Automaton
+        Regular expression represented as an adjacency matrix
+    graph : any
+        Graph from networkx
+    start_vertexes : Optional[List[any]]
+        Start vertexes. If none than all graph nodes are start vertexes
+    final_vertexes : Optional[List[any]]
+        Final vertexes. If none than all graph nodes are final vertexes
+    is_separately : bool
+        Flag represented type of solving problem
+
+    Returns
+    -------
+    States : States : Union[Set[any], Set[Tuple[any, any]]]
+        Depending on the type of problem being solved, it returns either a set of reachable states or a set of
+        pairs of states, where the first element is responsible for the starting state and the second for the
+        ending state.
+    """
+    if not start_vertexes:
+        start_vertexes = graph.nodes
+    if not final_vertexes:
+        final_vertexes = graph.nodes
+
+    map(State, start_vertexes)
+    map(State, final_vertexes)
+    # Convert graph to automaton
+    graph_fa = autolib.graph_to_nfa(graph, start_vertexes, final_vertexes)
+
+    # Convert regex to automaton
+    regex_fa = autolib.regex_to_minimal_dfa(regex)
+
+    # Convert fa from nx to Automaton
+    graph_automaton = Automaton.from_fa(graph_fa)
+    regex_automaton = Automaton.from_fa(regex_fa)
+
+    result = graph_automaton.bfs_rpq(regex_automaton, is_separately)
+    mapping = {v: k for k, v in graph_automaton.old_state_to_new.items()}
+
+    if is_separately:
+        map(lambda a, b: (mapping[a], mapping[b]), result)
+        return result
+    else:
+        return {mapping[i] for i in result}

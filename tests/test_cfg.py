@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from project import cfg
 
 from pyformlang.cfg import CFG, Variable, Terminal, Production, Epsilon
@@ -99,3 +101,52 @@ def test_cfg_to_wcnf():
     test_an_bn()
     test_removing_chain()
     test_balanced_parentheses()
+
+
+def test_read_grammar_from_file():
+    class TestCase:
+        def __init__(self, path: str, good_tests: Iterable, bad_tests):
+            self.path = path
+            self.good_tests = good_tests
+            self.bad_tests = bad_tests
+
+    tests = []
+
+    ter_a = Terminal("a")
+    ter_b = Terminal("b")
+    tests.append(
+        TestCase(
+            "static/balanced_parentheses.cfg",
+            [
+                [ter_a, ter_b],
+                [ter_a, ter_a, ter_b, ter_b],
+                [ter_a, ter_b, ter_a, ter_b],
+                [Epsilon()],
+            ],
+            [[ter_a], [ter_b, ter_b], [ter_a, ter_b, ter_a, ter_b, ter_a, ter_a]],
+        )
+    )
+
+    tests.append(
+        TestCase(
+            "static/a_or_b.cfg",
+            [
+                [ter_a, ter_b],
+                [ter_a, ter_a, ter_b, ter_b],
+                [ter_a, ter_b, ter_a, ter_b],
+                [ter_a],
+                [ter_b, ter_b],
+                [ter_a, ter_b, ter_a, ter_b, ter_a, ter_a],
+                [Epsilon()],
+            ],
+            [[Terminal("d")]],
+        )
+    )
+
+    for test in tests:
+        grammar = cfg.read_grammar_from_file(test.path)
+        for good in test.good_tests:
+            assert grammar.contains(good)
+
+        for bad in test.bad_tests:
+            assert not grammar.contains(bad)

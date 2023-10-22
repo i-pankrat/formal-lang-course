@@ -10,6 +10,18 @@ class CFGConverter:
         self.counter = 0
 
     def _fresh_var(self, var: Variable) -> Variable:
+        """Generate fresh variable name
+
+        Parameters
+        ----------
+        var : Variable
+            var on the basis of which a new variable will be created
+
+        Returns
+        -------
+        var : Variable
+            Return fresh variable.
+        """
 
         while Variable(str(var.value) + str(self.counter)) in self.variables:
             self.counter += 1
@@ -19,10 +31,23 @@ class CFGConverter:
         return res
 
     def to_cfg(self) -> CFG:
+        """Convert CFGConverter to CFG
+
+        Returns
+        -------
+        cfg : CFG
+            Returns context free grammar.
+        """
         return CFG(self.variables, self.terminals, self.start_symbol, self.productions)
 
     def to_wcnf(self) -> CFG:
+        """Convert CFGConverter to CFG in weak Chomsky normal form.
 
+        Returns
+        -------
+        cfg : CFG
+            Returns cfg in weak Chomsky normal form.
+        """
         new_productions = set()
 
         # 1. Remove all productions with body length > 2

@@ -1,4 +1,5 @@
 from typing import Iterable
+from os.path import join
 
 from project import cfg
 
@@ -116,7 +117,7 @@ def test_read_grammar_from_file():
     ter_b = Terminal("b")
     tests.append(
         TestCase(
-            "tests/static/balanced_parentheses.cfg",
+            join("tests", "static", "balanced_parentheses.cfg"),
             [
                 [ter_a, ter_b],
                 [ter_a, ter_a, ter_b, ter_b],
@@ -129,7 +130,7 @@ def test_read_grammar_from_file():
 
     tests.append(
         TestCase(
-            "tests/static/a_or_b.cfg",
+            join("tests", "static", "a_or_b.cfg"),
             [
                 [ter_a, ter_b],
                 [ter_a, ter_a, ter_b, ter_b],

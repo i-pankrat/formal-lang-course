@@ -116,7 +116,7 @@ def test_read_grammar_from_file():
     ter_b = Terminal("b")
     tests.append(
         TestCase(
-            "static/balanced_parentheses.cfg",
+            "tests/static/balanced_parentheses.cfg",
             [
                 [ter_a, ter_b],
                 [ter_a, ter_a, ter_b, ter_b],
@@ -129,7 +129,7 @@ def test_read_grammar_from_file():
 
     tests.append(
         TestCase(
-            "static/a_or_b.cfg",
+            "tests/static/a_or_b.cfg",
             [
                 [ter_a, ter_b],
                 [ter_a, ter_a, ter_b, ter_b],

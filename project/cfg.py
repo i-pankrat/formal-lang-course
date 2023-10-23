@@ -1,7 +1,5 @@
 from pyformlang.cfg import CFG, Variable
 
-from project.CFGConverter import CFGConverter
-
 
 def cfg_to_wcnf(cfg: CFG) -> CFG:
     """Convert cfg to weak Chomsky normal form.
@@ -19,8 +17,18 @@ def cfg_to_wcnf(cfg: CFG) -> CFG:
     if cfg.is_normal_form():
         return cfg
 
-    cfg_converter = CFGConverter(cfg)
-    return cfg_converter.to_wcnf()
+    new_cfg = (
+        cfg.remove_useless_symbols()
+        .eliminate_unit_productions()
+        .remove_useless_symbols()
+    )
+
+    new_productions = new_cfg._get_productions_with_only_single_terminals()
+    new_productions = new_cfg._decompose_productions(new_productions)
+
+    return CFG(
+        new_cfg.variables, new_cfg.terminals, new_cfg.start_symbol, set(new_productions)
+    )
 
 
 def read_grammar_from_file(path: str, start: any = Variable("S")) -> CFG:

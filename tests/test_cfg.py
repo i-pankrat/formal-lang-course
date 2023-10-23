@@ -40,8 +40,8 @@ def test_cfg_to_wcnf():
         # Test a^nb^n cfg
         wcnf_cfg = cfg.cfg_to_wcnf(an_bn_cfg)
         assert wcnf_cfg.terminals == an_bn_cfg.terminals
-        assert len(wcnf_cfg.productions) == len(an_bn_cfg.productions) + 5
-        assert len(wcnf_cfg.variables) == len(an_bn_cfg.variables) + 5
+        assert len(wcnf_cfg.productions) == len(an_bn_cfg.productions) + 3
+        assert len(wcnf_cfg.variables) == len(an_bn_cfg.variables) + 3
         assert wcnf_cfg.contains([Epsilon()]) == an_bn_cfg.contains([Epsilon()])
         assert wcnf_cfg.contains([ter_a, ter_b]) == an_bn_cfg.contains([ter_a, ter_b])
         assert wcnf_cfg.contains([ter_a, ter_a, ter_b, ter_b]) == an_bn_cfg.contains(

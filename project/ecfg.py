@@ -25,8 +25,8 @@ class ECFG:
             regex_body = Regex(
                 "".join([o.value for o in prod.body] if len(prod.body) > 0 else "$")
             )
-            if productions[prod.head]:
-                productions[prod.head].union(regex_body)
+            if prod.head in productions:
+                productions[prod.head] = productions[prod.head].union(regex_body)
             else:
                 productions[prod.head] = regex_body
 

@@ -18,7 +18,19 @@ class ECFG:
         self.productions = productions
 
     @classmethod
-    def from_cfg(cls, cfg: CFG):
+    def from_cfg(cls, cfg: CFG) -> "ECFG":
+        """Create ecfg from ecfg
+
+        Parameters
+        ----------
+        cfg : CFG
+            Context-free grammar
+
+        Returns
+        -------
+        ecfg : ECFG
+            Returns extended context-free grammar
+        """
         productions = {}
 
         for prod in cfg.productions:
@@ -33,7 +45,21 @@ class ECFG:
         return cls(cfg.start_symbol, cfg.terminals, cfg.variables, productions)
 
     @classmethod
-    def from_text(cls, x: str, start: any = Variable("S")):
+    def from_text(cls, x: str, start: any = Variable("S")) -> "ECFG":
+        """Create ecfg from ecfg
+
+        Parameters
+        ----------
+        x : str
+            Input string
+        start : any
+            Start non-terminal (variable)
+
+        Returns
+        -------
+        ecfg : ECFG
+            Returns extended context-free grammar
+        """
         productions = {}
         terminals = set()
         variables = set()
@@ -78,5 +104,19 @@ class ECFG:
 
     @classmethod
     def from_file(cls, file_name: str, start: any = Variable("S")):
+        """Create ecfg from ecfg
+
+        Parameters
+        ----------
+        file_name : str
+            Path to file
+        start : any
+            Start non-terminal (variable)
+
+        Returns
+        -------
+        ecfg : ECFG
+            Returns extended context-free grammar
+        """
         with open(file_name) as file:
             return ECFG.from_text(file.read(), start)

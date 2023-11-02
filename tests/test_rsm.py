@@ -15,7 +15,9 @@ class TestCase:
 
 
 def test_from_ecfg():
-    def assert_prods_are_equal(real_prods, expected_prods):
+    def assert_prods_are_equal(
+        real_prods: Dict[Variable, EpsilonNFA], expected_prods: Dict[Variable, Regex]
+    ):
         for var, real_dfa in real_prods.items():
             assert var in expected_prods
             expected_dfa = expected_prods[var].to_epsilon_nfa().to_deterministic()
@@ -36,7 +38,9 @@ def test_from_ecfg():
 
 
 def test_minimize():
-    def assert_prods_are_equal(real_prods, expected_prods):
+    def assert_prods_are_equal(
+        real_prods: Dict[Variable, EpsilonNFA], expected_prods: Dict[Variable, Regex]
+    ):
         for var, real_dfa in real_prods.items():
             assert var in expected_prods
             expected_dfa = expected_prods[var].to_epsilon_nfa()

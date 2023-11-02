@@ -2,6 +2,8 @@ from project.ecfg import ECFG
 from project.cfg import read_grammar_from_file
 from project.automaton_lib import regex_to_minimal_dfa
 
+from typing import Dict
+
 from pyformlang.cfg import Variable, Terminal
 from pyformlang.regular_expression import Regex
 
@@ -18,7 +20,9 @@ def test_ecfg_from_cfg():
 
 # This test also check that ecfg_from_text work properly
 def test_ecfg_from_file():
-    def assert_prod_are_equal(real_prod, expected_prod):
+    def assert_prod_are_equal(
+        real_prod: Dict[Variable, Regex], expected_prod: Dict[Variable, Regex]
+    ):
         for var, reg in real_prod.items():
             assert var in expected_prod
             real_dfa = regex_to_minimal_dfa(reg)

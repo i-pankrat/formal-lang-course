@@ -14,12 +14,31 @@ class RSM:
 
     @classmethod
     def from_ecfg(cls, ecfg: ECFG) -> "RSM":
+        """Create rsm from ecfg
+
+        Parameters
+        ----------
+        ecfg : ECFG
+            Extended Context-Free Grammars
+
+        Returns
+        -------
+        rsm : RSM
+            Returns rsm obtained from ecfg
+        """
         return cls(
             ecfg.start,
             {k: regex_to_minimal_dfa(r) for k, r in ecfg.productions.items()},
         )
 
     def minimize(self) -> "RSM":
+        """Minimize finite automates of rsm
+
+        Returns
+        -------
+        rsm : Rsm
+            Returns minimized rsm
+        """
         new_productions = {}
         for var, nfa in self.productions.items():
             new_productions[var] = nfa.minimize()

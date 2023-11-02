@@ -35,7 +35,10 @@ class ECFG:
     @classmethod
     def from_text(cls, x: str, start: any = Variable("S")):
         productions = {}
-        ecfg_rules = [rule for rule in x.split("\n") if not rule]
+        terminals = set()
+        variables = set()
+
+        ecfg_rules = [rule for rule in x.split("\n") if rule]
         for rule in ecfg_rules:
             separated_rule = rule.split("->")
             if len(separated_rule) != 2:
@@ -46,14 +49,32 @@ class ECFG:
             separated_rule[0] = separated_rule[0].strip()
             separated_rule[1] = separated_rule[1].strip()
 
+            if len(separated_rule[0].split(" ")) != 1:
+                raise SyntaxError(
+                    "Invalid ecfg grammar: there is more than one variable at the left part of the rule"
+                )
+            else:
+                variables.add(Variable(separated_rule[0]))
+
             if separated_rule[0] in productions:
                 raise SyntaxError(
                     "Invalid ecfg grammar: there is more than one rule for one variable"
                 )
 
+            tokens = separated_rule[1].split(" ")
+            for token in tokens:
+
+                if not token or token == "|":
+                    continue
+
+                if token[0].isupper():
+                    variables.add(Variable(token))
+                elif token[0].islower():
+                    terminals.add(Terminal(token))
+
             productions[Variable(separated_rule[0])] = Regex(separated_rule[1])
 
-        return ECFG(start, productions)
+        return ECFG(start, terminals, variables, productions)
 
     @classmethod
     def from_file(cls, file_name: str, start: any = Variable("S")):

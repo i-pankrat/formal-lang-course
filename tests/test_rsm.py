@@ -33,3 +33,23 @@ def test_from_ecfg():
     rsm = RSM.from_ecfg(ecfg)
     assert rsm.start == Variable("S")
     assert_prods_are_equal(rsm.productions, expected_prods)
+
+
+def test_minimize():
+    def assert_prods_are_equal(real_prods, expected_prods):
+        for var, real_dfa in real_prods.items():
+            assert var in expected_prods
+            expected_dfa = expected_prods[var].to_epsilon_nfa()
+            assert real_dfa.is_equivalent_to(expected_dfa)
+
+    filename = "useless"
+    expected_prods = {
+        Variable("S"): Regex("a|B"),
+        Variable("B"): Regex("b|C"),
+        Variable("C"): Regex("c"),
+    }
+
+    ecfg = ECFG.from_file("tests/static/" + filename + ".ecfg")
+    rsm = RSM.from_ecfg(ecfg).minimize()
+    assert rsm.start == Variable("S")
+    assert_prods_are_equal(rsm.productions, expected_prods)

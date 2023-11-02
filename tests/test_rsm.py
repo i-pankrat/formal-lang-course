@@ -29,7 +29,7 @@ def test_from_ecfg():
         Variable("D"): Regex("d"),
     }
 
-    ecfg = ECFG.from_file("static/" + filename + ".ecfg")
+    ecfg = ECFG.from_file("tests/static/" + filename + ".ecfg")
     rsm = RSM.from_ecfg(ecfg)
     assert rsm.start == Variable("S")
     assert_prods_are_equal(rsm.productions, expected_prods)

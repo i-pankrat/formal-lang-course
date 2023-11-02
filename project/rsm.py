@@ -13,8 +13,8 @@ class RSM:
         self.productions = productions
 
     @classmethod
-    def from_ecfg(cls, ecfg: ECFG):
-        cls(
+    def from_ecfg(cls, ecfg: ECFG) -> "RSM":
+        return cls(
             ecfg.start,
             {k: regex_to_minimal_dfa(r) for k, r in ecfg.productions.items()},
         )

@@ -9,6 +9,18 @@ class UnsupportedFolderForLaunchTest(Exception):
 
 
 def generate_right_path_to_test_file(filename: str) -> Path:
+    """Correct file path for test
+
+    Parameters
+    ----------
+    filename : str
+        Filename
+
+    Returns
+    -------
+    path : Path
+        Return right path
+    """
     relative_path = FILES_FOLDER.joinpath(filename)
     cwd = Path.cwd()
     if cwd.match("*/tests"):

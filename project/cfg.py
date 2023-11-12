@@ -38,7 +38,7 @@ def read_grammar_from_file(path: str | pathlib.Path, start: any = Variable("S"))
 
     Parameters
     ----------
-    path : str
+    path : str | pathlib.Path
         Path to file.
     start : any
         Start non-terminal (variable)

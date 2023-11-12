@@ -212,6 +212,18 @@ def bfs_rpq(
 
 
 def read_from_dot(file_path: str | pathlib.Path) -> nx.MultiDiGraph:
+    """Read graph for .dot file
+
+    Parameters
+    ----------
+    file_path: str | pathlib.Path
+        Path to file.
+
+    Returns
+    -------
+    graph : nx.MultiDiGraph
+        Return read graph from dot file.
+    """
     res: nx.MultiDiGraph = nx.drawing.nx_pydot.read_dot(file_path)
     if "\\n" in res.nodes:
         res.remove_node("\\n")

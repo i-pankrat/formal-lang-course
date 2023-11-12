@@ -1,3 +1,5 @@
+import pathlib
+
 from project import automaton_lib as autolib
 from project.Automaton import Automaton
 
@@ -54,14 +56,17 @@ def get_graph_info(graph_name: str) -> Tuple[int, int, set]:
 
 
 def labeled_two_cycles_graph_to_dot(
-    file_name: str, first_cycle_len: int, second_cycle_len: int, labels: Tuple[str, str]
+    file_name: str | pathlib.Path,
+    first_cycle_len: int,
+    second_cycle_len: int,
+    labels: Tuple[str, str],
 ) -> None:
     """Create a graph with two cycles connected by one node
     with labeled edges and save it to dot file.
 
     Parameters
     ----------
-    file_name : str
+    file_name : str | Path
         The name to the file where the graph will be written.
     first_cycle_len: int
         The length of the first cycle
@@ -78,18 +83,18 @@ def labeled_two_cycles_graph_to_dot(
     return
 
 
-def write_to_dot(graph: any, path: str):
+def write_to_dot(graph: any, path: str | pathlib.Path):
     """Write graph to .dot file.
 
     Parameters
     ----------
     graph : any
         The graph from a NetworkX that will be written to the file
-    path: str
+    path: str | pathlib.Path
         The name to the file where the graph will be written.
     """
 
-    nx.nx_pydot.to_pydot(graph).write(path + ".dot")
+    nx.nx_pydot.to_pydot(graph).write(path)
     return
 
 

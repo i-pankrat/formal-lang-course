@@ -1,3 +1,5 @@
+import pathlib
+
 from project import automaton_lib as autolib
 from project.Automaton import Automaton
 

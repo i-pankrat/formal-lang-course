@@ -1,17 +1,19 @@
+from typing import Set
+
 from project.graphs_lib import LABEL
+from project.cfg import cfg_to_wcnf
 
 from networkx import Graph
 from pyformlang.cfg import CFG, Variable
-from cfg import cfg_to_wcnf
 
 
 def helling_request(
     graph: Graph,
     request: CFG,
-    start_vertices: set = None,
-    final_vertices: set = None,
+    start_vertices: Set = None,
+    final_vertices: Set = None,
     start_variable: Variable = Variable("S"),
-) -> set:
+) -> Set:
     """It allows you to solve a reachability problem for start and final vertices of your graph.
     A reachability constraint is a context-free grammar.
 
@@ -21,16 +23,16 @@ def helling_request(
         Input graph from networkx
     request : CFG
         context-free grammar
-    start_vertices: set
+    start_vertices: Set
         Start vertices of input graph
-    final_vertices: set
+    final_vertices: Set
         Final vertices of input graph
     start_variable: Variable
         Start variable to grammar
 
     Returns
     -------
-    res : set
+    res : Set
         Set of pairs of graph vertices that satisfies the request
     """
 
@@ -41,7 +43,7 @@ def helling_request(
 
     transitive_closure = constrained_transitive_closure(graph, request)
 
-    return {
+    res = {
         (start_node, final_node)
         for start_node, variable, final_node in transitive_closure
         if start_node in start_vertices
@@ -49,8 +51,10 @@ def helling_request(
         and final_node in final_vertices
     }
 
+    return res
 
-def constrained_transitive_closure(graph: Graph, cfg: CFG) -> set:
+
+def constrained_transitive_closure(graph: Graph, cfg: CFG) -> Set:
     """Find transitive closure of the graph with constraints of cfg grammar
 
     Parameters
@@ -62,7 +66,7 @@ def constrained_transitive_closure(graph: Graph, cfg: CFG) -> set:
 
     Returns
     -------
-    res : set
+    res : Set
         Constrained transitive closure of graph
     """
 
@@ -82,7 +86,7 @@ def constrained_transitive_closure(graph: Graph, cfg: CFG) -> set:
         else:  # prod_body_len == 2
             var_prods.add(prod)
 
-    res = {(node, var, node) for node in graph.nodes for var in epsilon_prods} | {
+    res = {(node, var.value, node) for node in graph.nodes for var in epsilon_prods} | {
         (first_node, prod.head.value, second_node)
         for first_node, second_node, label in graph.edges.data(LABEL)
         for prod in term_prods
@@ -96,7 +100,7 @@ def constrained_transitive_closure(graph: Graph, cfg: CFG) -> set:
         tmp = set()
 
         for start2, var2, end2 in res:
-            if end2 == start1:
+            if start1 == end2:
                 triplets = {
                     (start2, prod.head.value, end1)
                     for prod in var_prods

@@ -207,3 +207,11 @@ def bfs_rpq(
         return result
     else:
         return {mapping[i] for i in result}
+
+
+def read_from_dot(file_path: str) -> nx.MultiDiGraph:
+    res: nx.MultiDiGraph = nx.drawing.nx_pydot.read_dot(file_path)
+    if "\\n" in res.nodes:
+        res.remove_node("\\n")
+
+    return res

@@ -13,6 +13,7 @@ from pyformlang.finite_automaton import (
 )
 
 from project import automaton_lib, graphs_lib
+from tests.test_utils.manage_path import generate_right_path_to_test_file as gen_path
 
 
 def test_regex_to_minimal_dfa():
@@ -144,12 +145,11 @@ def test_graph_to_nfa_from_graph():
 
 
 def test_graph_to_nfa_from_dot():
-    filename = "tests/static/graph_to_nfa"
     f, s, labels = 2, 3, ("a", "b")
     nodes, labels_num = f + s + 1, 2
-    full_filename = "tests/static/graph_to_nfa" + ".dot"
+    filename = gen_path("graph_to_nfa.dot")
     graphs_lib.labeled_two_cycles_graph_to_dot(filename, f, s, labels=labels)
-    pydot_graph = pydot.graph_from_dot_file(full_filename)
+    pydot_graph = pydot.graph_from_dot_file(filename)
     assert len(pydot_graph) == 1
     nx_graph: nx.MultiDiGraph = nx.drawing.nx_pydot.from_pydot(pydot_graph[0])
     nx_graph.remove_node("\\n")

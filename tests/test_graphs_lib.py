@@ -2,6 +2,7 @@ import filecmp
 import os
 
 from project import graphs_lib
+from tests.test_utils.manage_path import generate_right_path_to_test_file as gen_path
 
 import networkx as nx
 from pyformlang.regular_expression import Regex
@@ -54,9 +55,8 @@ def test_get_graph_info_ws():
 
 
 def test_labeled_two_cycles_graph_to_dot():
-    file_name = "tests/static/graph"
-    full_file_name = file_name + ".dot"
-    expected_file_name = "tests/static/expected_graph.dot"
+    file_name = gen_path("graph.dot")
+    expected_file_name = gen_path("expected_graph.dot")
     first_cycle_len = 4
     second_cycle_len = 5
     labels = ("a", "d")
@@ -66,8 +66,8 @@ def test_labeled_two_cycles_graph_to_dot():
         file_name, first_cycle_len, second_cycle_len, labels
     )
 
-    assert filecmp.cmp(full_file_name, expected_file_name, shallow=False)
-    os.remove(full_file_name)
+    assert filecmp.cmp(file_name, expected_file_name, shallow=False)
+    os.remove(file_name)
 
 
 def test_make_regex_request_to_graph():

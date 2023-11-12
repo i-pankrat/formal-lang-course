@@ -1,6 +1,7 @@
 from project.hellings_request import helling_request
 from project.graphs_lib import read_from_dot
 from project.cfg import read_grammar_from_file
+from tests.test_utils.manage_path import generate_right_path_to_test_file as gen_path
 
 import pytest
 
@@ -9,8 +10,8 @@ import pytest
     "graph, cfg, start, final, expected",
     [
         (
-            read_from_dot("static/graph0.dot"),
-            read_grammar_from_file("static/a_or_b.cfg"),
+            read_from_dot(gen_path("graph0.dot")),
+            read_grammar_from_file(gen_path("a_or_b.cfg")),
             None,
             None,
             {
@@ -26,8 +27,8 @@ import pytest
             },
         ),
         (
-            read_from_dot("static/graph1.dot"),
-            read_grammar_from_file("static/a_or_b.cfg"),
+            read_from_dot(gen_path("graph1.dot")),
+            read_grammar_from_file(gen_path("a_or_b.cfg")),
             None,
             None,
             {
@@ -57,57 +58,57 @@ import pytest
             },
         ),
         (
-            read_from_dot("static/empty_graph.dot"),
-            read_grammar_from_file("static/empty.cfg"),
+            read_from_dot(gen_path("empty_graph.dot")),
+            read_grammar_from_file(gen_path("empty.cfg")),
             None,
             None,
             set(),
         ),
         (
-            read_from_dot("static/empty_graph.dot"),
-            read_grammar_from_file("static/balanced_parentheses.cfg"),
+            read_from_dot(gen_path("empty_graph.dot")),
+            read_grammar_from_file(gen_path("balanced_parentheses.cfg")),
             None,
             None,
             set(),
         ),
         (
-            read_from_dot("static/graph1.dot"),
-            read_grammar_from_file("static/empty.cfg"),
+            read_from_dot(gen_path("graph1.dot")),
+            read_grammar_from_file(gen_path("empty.cfg")),
             {"1"},
             {"2", "3", "4", "5", "6", "7", "8", "9"},
             set(),
         ),
         (
-            read_from_dot("static/graph2.dot"),
-            read_grammar_from_file("static/balanced_parentheses.cfg"),
+            read_from_dot(gen_path("graph2.dot")),
+            read_grammar_from_file(gen_path("balanced_parentheses.cfg")),
             {"1"},
             {"2", "3", "4", "5", "6", "7", "8", "9"},
             {("1", "9"), ("1", "5"), ("1", "7"), ("1", "3")},
         ),
         (
-            read_from_dot("static/graph3.dot"),
-            read_grammar_from_file("static/lang.cfg"),
+            read_from_dot(gen_path("graph3.dot")),
+            read_grammar_from_file(gen_path("lang.cfg")),
             {"1"},
             None,
             {("1", "1"), ("1", "4"), ("1", "5"), ("1", "8"), ("1", "10")},
         ),
         (
-            read_from_dot("static/arithmetic_graph.dot"),
-            read_grammar_from_file("static/arithmetic.cfg"),
+            read_from_dot(gen_path("arithmetic_graph.dot")),
+            read_grammar_from_file(gen_path("arithmetic.cfg")),
             {"1"},
             None,
             {("1", "4"), ("1", "10"), ("1", "2"), ("1", "5"), ("1", "1")},
         ),
         (
-            read_from_dot("static/arithmetic_graph.dot"),
-            read_grammar_from_file("static/a_or_b.cfg"),
+            read_from_dot(gen_path("arithmetic_graph.dot")),
+            read_grammar_from_file(gen_path("a_or_b.cfg")),
             {"1"},
             None,
             {("1", "1")},
         ),
         (
-            read_from_dot("static/arithmetic_graph.dot"),
-            read_grammar_from_file("static/lang.cfg"),
+            read_from_dot(gen_path("arithmetic_graph.dot")),
+            read_grammar_from_file(gen_path("lang.cfg")),
             None,
             None,
             set(),

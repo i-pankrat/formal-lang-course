@@ -1,8 +1,8 @@
+from project.graphs_lib import LABEL
+
 from networkx import Graph
 from pyformlang.cfg import CFG, Variable
 from cfg import cfg_to_wcnf
-
-from project.graphs_lib import LABEL
 
 
 def helling_request(

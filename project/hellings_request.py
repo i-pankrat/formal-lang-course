@@ -12,6 +12,28 @@ def helling_request(
     final_vertices: set = None,
     start_variable: Variable = Variable("S"),
 ) -> set:
+    """It allows you to solve a reachability problem for start and final vertices of your graph.
+    A reachability constraint is a context-free grammar.
+
+    Parameters
+    ----------
+    graph : Graph
+        Input graph from networkx
+    request : CFG
+        context-free grammar
+    start_vertices: set
+        Start vertices of input graph
+    final_vertices: set
+        Final vertices of input graph
+    start_variable: Variable
+        Start variable to grammar
+
+    Returns
+    -------
+    res : set
+        Set of pairs of graph vertices that satisfies the request
+    """
+
     if start_vertices is None:
         start_vertices = graph.nodes
     if final_vertices is None:
@@ -28,7 +50,22 @@ def helling_request(
     }
 
 
-def constrained_transitive_closure(graph: Graph, cfg: CFG):
+def constrained_transitive_closure(graph: Graph, cfg: CFG) -> set:
+    """Find transitive closure of the graph with constraints of cfg grammar
+
+    Parameters
+    ----------
+    graph : Graph
+        Input graph from networkx
+    cfg : CFG
+        Context-Free Grammar represents constraints
+
+    Returns
+    -------
+    res : set
+        Constrained transitive closure of graph
+    """
+
     wcnf = cfg_to_wcnf(cfg)
 
     epsilon_prods = set()

@@ -1,3 +1,5 @@
+import pathlib
+
 from project import automaton_lib as autolib
 from project.Automaton import Automaton
 
@@ -209,7 +211,7 @@ def bfs_rpq(
         return {mapping[i] for i in result}
 
 
-def read_from_dot(file_path: str) -> nx.MultiDiGraph:
+def read_from_dot(file_path: str | pathlib.Path) -> nx.MultiDiGraph:
     res: nx.MultiDiGraph = nx.drawing.nx_pydot.read_dot(file_path)
     if "\\n" in res.nodes:
         res.remove_node("\\n")

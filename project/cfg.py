@@ -1,3 +1,5 @@
+import pathlib
+
 from pyformlang.cfg import CFG, Variable
 
 
@@ -31,7 +33,7 @@ def cfg_to_wcnf(cfg: CFG) -> CFG:
     )
 
 
-def read_grammar_from_file(path: str, start: any = Variable("S")) -> CFG:
+def read_grammar_from_file(path: str | pathlib.Path, start: any = Variable("S")) -> CFG:
     """Read grammar from file
 
     Parameters

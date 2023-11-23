@@ -6,6 +6,7 @@ from networkx import Graph
 from pyformlang.cfg import CFG, Variable, Terminal
 from scipy.sparse import lil_matrix
 
+
 def matrix_request(
     graph: Graph,
     request: CFG,
@@ -30,6 +31,7 @@ def matrix_request(
     }
 
     return res
+
 
 def matrix_closure(graph: Graph, cfg: CFG) -> Set:
 
@@ -61,14 +63,13 @@ def matrix_closure(graph: Graph, cfg: CFG) -> Set:
     for u, v, label in graph.edges(data="label"):
         i, j = indexes_nodes[u], indexes_nodes[v]
         for var in term_prods:
-            matrices[var][i, j] |= Terminal(label) in var.body[0].value
+            matrices[var.head][i, j] |= label == var.body[0].value
 
     while True:
         old_nnz = sum([v.nnz for v in matrices.values()])
-        for head in var_prods:
-            for vars in head.body[0].value:
-                matrices[head] += matrices[vars[0]] @ matrices[vars[1]]
-        if old_nnz == sum([v.nnz for v in matrices.values()]):
+        for prod in var_prods:
+            matrices[prod.head] += matrices[prod.body[0]] @ matrices[prod.body[1]]
+        if old_nnz == sum([value.nnz for value in matrices.values()]):
             break
 
     return set(

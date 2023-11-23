@@ -130,7 +130,7 @@ def matrix_closure(graph: Graph, cfg: CFG) -> Set:
         for var in epsilon_prods:
             matrices[var][i, i] = True
 
-    for u, v, label in graph.edges(data="label"):
+    for u, v, label in graph.edges(data=LABEL):
         i, j = indexes_nodes[u], indexes_nodes[v]
         for var in term_prods:
             matrices[var.head][i, j] |= label == var.body[0].value
@@ -144,6 +144,6 @@ def matrix_closure(graph: Graph, cfg: CFG) -> Set:
 
     return set(
         (nodes[i], v, nodes[j])
-        for v, mat in matrices.items()
-        for i, j in zip(*mat.nonzero())
+        for v, matrix in matrices.items()
+        for i, j in zip(*matrix.nonzero())
     )

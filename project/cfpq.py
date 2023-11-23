@@ -9,7 +9,7 @@ from pyformlang.cfg import CFG, Variable
 def cfpq_request(
     graph: Graph,
     request: CFG,
-    algorithm: Callable[Graph, CFG, Set],
+    algorithm: Callable[[Graph, CFG], Set],
     start_vertices: Set = None,
     final_vertices: Set = None,
     start_variable: Variable = Variable("S"),

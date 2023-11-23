@@ -1,6 +1,8 @@
 from typing import Set
 from collections.abc import Callable
 
+from project.cfpq_algorithms import constrained_transitive_closure, matrix_closure
+
 from networkx import Graph
 from pyformlang.cfg import CFG, Variable
 
@@ -50,3 +52,23 @@ def cfpq_request(
     }
 
     return res
+
+
+def hellings(
+    graph: Graph,
+    request: CFG,
+    start_vertices: Set = None,
+    final_vertices: Set = None,
+    start_variable: Variable = Variable("S"),
+) -> Set:
+    return cfpq_request(graph, request, constrained_transitive_closure, start_vertices, final_vertices, start_variable)
+
+
+def matrix(
+    graph: Graph,
+    request: CFG,
+    start_vertices: Set = None,
+    final_vertices: Set = None,
+    start_variable: Variable = Variable("S"),
+) -> Set:
+    return cfpq_request(graph, request, matrix_closure, start_vertices, final_vertices, start_variable)

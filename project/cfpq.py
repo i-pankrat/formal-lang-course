@@ -85,7 +85,14 @@ def hellings(
     res : Set
         Set of pairs of graph vertices that satisfies the request
     """
-    return _cfpq(graph, request, constrained_transitive_closure, start_vertices, final_vertices, start_variable)
+    return _cfpq(
+        graph,
+        request,
+        constrained_transitive_closure,
+        start_vertices,
+        final_vertices,
+        start_variable,
+    )
 
 
 def matrix(
@@ -116,4 +123,6 @@ def matrix(
     res : Set
         Set of pairs of graph vertices that satisfies the request
     """
-    return _cfpq(graph, request, matrix_closure, start_vertices, final_vertices, start_variable)
+    return _cfpq(
+        graph, request, matrix_closure, start_vertices, final_vertices, start_variable
+    )

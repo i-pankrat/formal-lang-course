@@ -1,4 +1,5 @@
 from project.hellings_request import helling_request
+from project.matrix_request import matrix_request
 from project.graphs_lib import read_from_dot
 from project.cfg import read_grammar_from_file
 from tests.test_utils.manage_path import generate_right_path_to_test_file as gen_path
@@ -117,3 +118,4 @@ import pytest
 )
 def test_helling_request(graph, cfg, start, final, expected):
     assert helling_request(graph, cfg, start, final) == expected
+    assert matrix_request(graph, cfg, start, final) == expected

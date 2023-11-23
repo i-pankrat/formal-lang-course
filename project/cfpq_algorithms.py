@@ -8,7 +8,21 @@ from pyformlang.cfg import CFG
 from scipy.sparse import lil_matrix
 
 
-def _prepare_wcfg_for_algorithm(wcnf: CFG) -> (set, set, set):
+def _prepare_wcfg_for_algorithm(wcnf: CFG) -> (Set, Set, Set):
+    """Convert wcnf to the set of epsilon productions, the set of terminal production
+    and the set of productions where each production body contains of two variables.
+
+    Parameters
+    ----------
+    wcnf : CFG
+        Input graph from networkx
+
+    Returns
+    -------
+    res : (Set, Set, Set)
+        Set of epsilon productions, set of terminal production,
+        set of productions where each production body contains of two variables
+    """
 
     epsilon_prods = set()
     term_prods = set()
@@ -88,6 +102,20 @@ def constrained_transitive_closure(graph: Graph, cfg: CFG) -> Set:
 
 
 def matrix_closure(graph: Graph, cfg: CFG) -> Set:
+    """Find transitive closure of the graph with constraints of cfg grammar
+
+    Parameters
+    ----------
+    graph : Graph
+        Input graph from networkx
+    cfg : CFG
+        Context-Free Grammar represents constraints
+
+    Returns
+    -------
+    res : Set
+        Constrained transitive closure of graph
+    """
 
     wcnf = cfg_to_wcnf(cfg)
     epsilon_prods, term_prods, var_prods = _prepare_wcfg_for_algorithm(wcnf)

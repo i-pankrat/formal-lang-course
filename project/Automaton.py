@@ -118,7 +118,6 @@ class Automaton:
 
         return cls(start_states, final_states, states, symbols, matrices, mapping)
 
-
     def intersect(self, other: "Automaton") -> "Automaton":
         """Intersects two automata
 

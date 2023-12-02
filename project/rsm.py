@@ -27,7 +27,10 @@ class RSM:
         """
         return cls(
             ecfg.start,
-            {k: r.to_epsilon_nfa().to_deterministic() for k, r in ecfg.productions.items()},
+            {
+                k: r.to_epsilon_nfa().to_deterministic()
+                for k, r in ecfg.productions.items()
+            },
         )
 
     def minimize(self) -> "RSM":

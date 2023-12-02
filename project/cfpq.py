@@ -1,16 +1,20 @@
 from typing import Set
 from collections.abc import Callable
 
-from project.cfpq_algorithms import constrained_transitive_closure, matrix_closure
+from project.cfpq_algorithms import (
+    constrained_transitive_closure,
+    matrix_closure,
+    tensor_closure,
+)
 
-from networkx import Graph
+from networkx import MultiDiGraph
 from pyformlang.cfg import CFG, Variable
 
 
 def _cfpq(
-    graph: Graph,
+    graph: MultiDiGraph,
     request: CFG,
-    algorithm: Callable[[Graph, CFG], Set],
+    algorithm: Callable[[MultiDiGraph, CFG], Set],
     start_vertices: Set = None,
     final_vertices: Set = None,
     start_variable: Variable = Variable("S"),
@@ -20,7 +24,7 @@ def _cfpq(
 
     Parameters
     ----------
-    graph : Graph
+    graph : MultiDiGraph
         Input graph from networkx
     request : CFG
         context-free grammar
@@ -58,7 +62,7 @@ def _cfpq(
 
 
 def hellings(
-    graph: Graph,
+    graph: MultiDiGraph,
     request: CFG,
     start_vertices: Set = None,
     final_vertices: Set = None,
@@ -69,7 +73,7 @@ def hellings(
 
     Parameters
     ----------
-    graph : Graph
+    graph : MultiDiGraph
         Input graph from networkx
     request : CFG
         context-free grammar
@@ -96,7 +100,7 @@ def hellings(
 
 
 def matrix(
-    graph: Graph,
+    graph: MultiDiGraph,
     request: CFG,
     start_vertices: Set = None,
     final_vertices: Set = None,
@@ -107,7 +111,7 @@ def matrix(
 
     Parameters
     ----------
-    graph : Graph
+    graph : MultiDiGraph
         Input graph from networkx
     request : CFG
         context-free grammar
@@ -125,4 +129,37 @@ def matrix(
     """
     return _cfpq(
         graph, request, matrix_closure, start_vertices, final_vertices, start_variable
+    )
+
+
+def tensor(
+    graph: MultiDiGraph,
+    request: CFG,
+    start_vertices: Set = None,
+    final_vertices: Set = None,
+    start_variable: Variable = Variable("S"),
+) -> Set:
+    """It allows you to solve a reachability problem for start and final vertices of your graph.
+    A reachability constraint is a context-free grammar. Tensor algorithm is used for solution.
+
+    Parameters
+    ----------
+    graph : MultiDiGraph
+        Input graph from networkx
+    request : CFG
+        context-free grammar
+    start_vertices: Set
+        Start vertices of input graph
+    final_vertices: Set
+        Final vertices of input graph
+    start_variable: Variable
+        Start variable to grammar
+
+    Returns
+    -------
+    res : Set
+        Set of pairs of graph vertices that satisfies the request
+    """
+    return _cfpq(
+        graph, request, tensor_closure, start_vertices, final_vertices, start_variable
     )

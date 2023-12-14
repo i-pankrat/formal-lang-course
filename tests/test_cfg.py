@@ -1,7 +1,9 @@
+import pathlib
 from typing import Iterable
 from os.path import join
 
 from project import cfg
+from tests.test_utils.manage_path import generate_right_path_to_test_file as gen_path
 
 from pyformlang.cfg import CFG, Variable, Terminal, Production, Epsilon
 
@@ -106,7 +108,7 @@ def test_cfg_to_wcnf():
 
 def test_read_grammar_from_file():
     class TestCase:
-        def __init__(self, path: str, good_tests: Iterable, bad_tests):
+        def __init__(self, path: pathlib.Path, good_tests: Iterable, bad_tests):
             self.path = path
             self.good_tests = good_tests
             self.bad_tests = bad_tests
@@ -117,7 +119,7 @@ def test_read_grammar_from_file():
     ter_b = Terminal("b")
     tests.append(
         TestCase(
-            join("tests", "static", "balanced_parentheses.cfg"),
+            gen_path("balanced_parentheses.cfg"),
             [
                 [ter_a, ter_b],
                 [ter_a, ter_a, ter_b, ter_b],
@@ -130,7 +132,7 @@ def test_read_grammar_from_file():
 
     tests.append(
         TestCase(
-            join("tests", "static", "a_or_b.cfg"),
+            gen_path("a_or_b.cfg"),
             [
                 [ter_a, ter_b],
                 [ter_a, ter_a, ter_b, ter_b],

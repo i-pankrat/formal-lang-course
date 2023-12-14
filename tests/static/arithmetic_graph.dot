@@ -1,0 +1,30 @@
+digraph G {
+1;
+2;
+3;
+4;
+5;
+6;
+7;
+8;
+9;
+10;
+11;
+12;
+1 -> 1  [key=0, label=number];
+1 -> 11 [key=0, label=left_par];
+11 -> 11 [key=0, label=right_par];
+11 -> 12 [key=0, label=number];
+1 -> 2  [key=0, label=minus];
+2 -> 2  [key=0, label=number];
+2 -> 3  [key=0, label=plus];
+3 -> 4  [key=0, label=number];
+1 -> 5  [key=0, label=number];
+1 -> 6  [key=0, label=left_par];
+6 -> 6  [key=0, label=number];
+6 -> 7  [key=0, label=divide];
+7 -> 8  [key=0, label=number];
+8 -> 8  [key=0, label=multiply];
+8 -> 9  [key=0, label=number];
+9 -> 10 [key=0, label=right_par];
+}

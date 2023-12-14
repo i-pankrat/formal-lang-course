@@ -1,0 +1,3 @@
+S -> a | a | B | B
+B -> b | b | C | C
+C -> c | c

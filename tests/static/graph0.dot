@@ -1,0 +1,9 @@
+digraph G {
+1;
+2;
+3;
+5;
+1 -> 2  [key=0, label=b];
+2 -> 3  [key=0, label=b];
+2 -> 5  [key=0, label=a];
+}

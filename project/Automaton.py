@@ -1,6 +1,9 @@
 from typing import Dict, List, Tuple, Union, Set
 
-from scipy.sparse import kron, csr_array, csr_matrix, block_diag, lil_array, identity
+from project.rsm import RSM
+
+from scipy import sparse
+from scipy.sparse import kron, csr_array, csr_matrix, block_diag, lil_array
 from pyformlang.finite_automaton import (
     EpsilonNFA,
     State,
@@ -63,6 +66,57 @@ class Automaton:
         return cls(
             fa.start_states, fa.final_states, fa.states, fa.symbols, result_map, mapping
         )
+
+    @classmethod
+    def from_rsm(cls, rsm: RSM) -> "Automaton":
+        """Turns the RSM into an adjacency matrix
+
+        Parameters
+        ----------
+        rsm : RSM
+            Finite automaton from pyformlang
+
+        Returns
+        -------
+        automaton : Automaton
+        """
+
+        states, start_states, final_states = set(), set(), set()
+
+        for var, automata in rsm.productions.items():
+            for state in automata.states:
+                st = State((var, state.value))
+                states.add(st)
+                if state in automata.start_states:
+                    start_states.add(st)
+                if state in automata.final_states:
+                    final_states.add(st)
+
+        mapping = {
+            state: i for i, state in enumerate(sorted(states, key=lambda s: s.value[1]))
+        }
+
+        n = len(states)
+        matrices = {}
+        symbols = set()
+
+        for var, automata in rsm.productions.items():
+            symbols = symbols.union(automata.symbols)
+            for state_source, transition in automata.to_dict().items():
+                for symbol, states_targets in transition.items():
+                    if not isinstance(states_targets, set):
+                        states_targets = {states_targets}
+
+                    if symbol.value not in matrices:
+                        matrices[symbol.value] = sparse.csr_array((n, n), dtype=bool)
+
+                    for state_target in states_targets:
+                        matrices[symbol.value][
+                            mapping[State((var, state_source.value))],
+                            mapping[State((var, state_target.value))],
+                        ] = True
+
+        return cls(start_states, final_states, states, symbols, matrices, mapping)
 
     def intersect(self, other: "Automaton") -> "Automaton":
         """Intersects two automata

@@ -1,0 +1,25 @@
+digraph G {
+1;
+2;
+3;
+4;
+5;
+6;
+7;
+8;
+9;
+10;
+1 -> 1  [key=0, label=variable];
+1 -> 2  [key=0, label=if];
+2 -> 2  [key=0, label=variable];
+2 -> 3  [key=0, label=constant];
+2 -> 3  [key=0, label=then];
+3 -> 4  [key=0, label=variable];
+1 -> 5  [key=0, label=constant];
+1 -> 6  [key=0, label=if];
+6 -> 6  [key=0, label=constant];
+6 -> 7  [key=0, label=then];
+7 -> 8  [key=0, label=variable];
+8 -> 9  [key=0, label=else];
+9 -> 10 [key=0, label=constant];
+}

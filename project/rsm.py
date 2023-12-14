@@ -1,5 +1,4 @@
 from project.ecfg import ECFG
-from project.automaton_lib import regex_to_minimal_dfa
 
 from typing import Dict
 
@@ -28,7 +27,10 @@ class RSM:
         """
         return cls(
             ecfg.start,
-            {k: regex_to_minimal_dfa(r) for k, r in ecfg.productions.items()},
+            {
+                k: r.to_epsilon_nfa().to_deterministic()
+                for k, r in ecfg.productions.items()
+            },
         )
 
     def minimize(self) -> "RSM":

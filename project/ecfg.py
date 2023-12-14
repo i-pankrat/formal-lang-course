@@ -1,6 +1,6 @@
 from typing import AbstractSet, Dict
 
-from pyformlang.cfg import CFG, Variable, Terminal
+from pyformlang.cfg import CFG, Variable, Terminal, Epsilon
 from pyformlang.regular_expression import Regex
 
 
@@ -35,7 +35,7 @@ class ECFG:
 
         for prod in cfg.productions:
             regex_body = Regex(
-                "".join([o.value for o in prod.body] if len(prod.body) > 0 else "$")
+                " ".join([o.value for o in prod.body] if len(prod.body) > 0 else "$")
             )
             if prod.head in productions:
                 productions[prod.head] = productions[prod.head].union(regex_body)

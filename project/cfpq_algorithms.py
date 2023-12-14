@@ -2,10 +2,15 @@ from typing import Set
 
 from project.graphs_lib import LABEL
 from project.cfg import cfg_to_wcnf
+from project.ecfg import ECFG
+from project.automaton_lib import Automaton
+from project.rsm import RSM
 
-from networkx import Graph
+from networkx import MultiDiGraph
 from pyformlang.cfg import CFG
-from scipy.sparse import lil_matrix
+from pyformlang.finite_automaton import EpsilonNFA
+from scipy.sparse import lil_matrix, csr_array
+from scipy import sparse
 
 
 def _prepare_wcfg_for_algorithm(wcnf: CFG) -> (Set, Set, Set):
@@ -41,12 +46,13 @@ def _prepare_wcfg_for_algorithm(wcnf: CFG) -> (Set, Set, Set):
     return epsilon_prods, term_prods, var_prods
 
 
-def constrained_transitive_closure(graph: Graph, cfg: CFG) -> Set:
+def constrained_transitive_closure(graph: MultiDiGraph, cfg: CFG) -> Set:
     """Find transitive closure of the graph with constraints of cfg grammar
+    Use hellings algorithm.
 
     Parameters
     ----------
-    graph : Graph
+    graph : MultiDiGraph
         Input graph from networkx
     cfg : CFG
         Context-Free Grammar represents constraints
@@ -101,12 +107,13 @@ def constrained_transitive_closure(graph: Graph, cfg: CFG) -> Set:
     return res
 
 
-def matrix_closure(graph: Graph, cfg: CFG) -> Set:
+def matrix_closure(graph: MultiDiGraph, cfg: CFG) -> Set:
     """Find transitive closure of the graph with constraints of cfg grammar
+    Use matrix algorithm.
 
     Parameters
     ----------
-    graph : Graph
+    graph : MultiDiGraph
         Input graph from networkx
     cfg : CFG
         Context-Free Grammar represents constraints
@@ -147,3 +154,71 @@ def matrix_closure(graph: Graph, cfg: CFG) -> Set:
         for v, matrix in matrices.items()
         for i, j in zip(*matrix.nonzero())
     )
+
+
+def tensor_closure(graph: MultiDiGraph, cfg: CFG) -> Set:
+    """Find transitive closure of the graph with constraints of cfg grammar.
+    Use tensor algorithm.
+
+    Parameters
+    ----------
+    graph : MultiDiGraph
+        Input graph from networkx
+    cfg : CFG
+        Context-Free Grammar represents constraints
+
+    Returns
+    -------
+    res : Set
+        Constrained transitive closure of graph
+    """
+    ecfg = ECFG.from_cfg(cfg)
+    rsm = RSM.from_ecfg(ecfg).minimize()
+    rsm_matrix = Automaton.from_rsm(rsm)
+    rsm_states = {i: state for state, i in rsm_matrix.old_state_to_new.items()}
+
+    graph_matrix = Automaton.from_fa(EpsilonNFA.from_networkx(graph))
+    n = len(graph_matrix.states)
+    graph_states = {i: state for state, i in graph_matrix.old_state_to_new.items()}
+
+    id_mat = sparse.eye(n, dtype=bool).todok()
+    for var in cfg.get_nullable_symbols():
+        if var.value not in graph_matrix.symbol_matrices:
+            graph_matrix.symbol_matrices[var.value] = csr_array((n, n), dtype=bool)
+            graph_matrix.symbols.add(var.value)
+        graph_matrix.symbol_matrices[var.value] += id_mat
+
+    prev_nnz = 0
+
+    while True:
+        tc_nnz_indexes = list(
+            zip(*rsm_matrix.intersect(graph_matrix).transitive_closure().nonzero())
+        )
+        if len(tc_nnz_indexes) == prev_nnz:
+            break
+
+        prev_nnz = len(tc_nnz_indexes)
+
+        for i, j in tc_nnz_indexes:
+            cfg_i, cfg_j = i // n, j // n
+            graph_i, graph_j = i % n, j % n
+
+            state_source = rsm_states[cfg_i]
+            state_target = rsm_states[cfg_j]
+
+            var, _ = state_source.value
+
+            if (
+                state_source in rsm_matrix.start_states
+                and state_target in rsm_matrix.final_states
+            ):
+                if var not in graph_matrix.symbol_matrices:
+                    graph_matrix.symbols.add(var)
+                    graph_matrix.symbol_matrices[var] = csr_array((n, n), dtype=bool)
+                graph_matrix.symbol_matrices[var][graph_i, graph_j] = True
+
+    return {
+        (graph_states[graph_i], var, graph_states[graph_j])
+        for var, mat in graph_matrix.symbol_matrices.items()
+        for graph_i, graph_j in zip(*mat.nonzero())
+    }
